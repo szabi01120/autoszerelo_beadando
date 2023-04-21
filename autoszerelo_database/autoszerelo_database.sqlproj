@@ -1,0 +1,110 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Name>autoszerelo_database</Name>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectVersion>4.1</ProjectVersion>
+    <ProjectGuid>{8e4ac4a4-007b-445a-b2c1-2305a25f56a1}</ProjectGuid>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.Sql130DatabaseSchemaProvider</DSP>
+    <OutputType>Database</OutputType>
+    <RootPath>
+    </RootPath>
+    <RootNamespace>autoszerelo_database</RootNamespace>
+    <AssemblyName>autoszerelo_database</AssemblyName>
+    <ModelCollation>1033,CI</ModelCollation>
+    <DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
+    <DeployToDatabase>True</DeployToDatabase>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetLanguage>CS</TargetLanguage>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <SqlServerVerification>False</SqlServerVerification>
+    <IncludeCompositeObjects>True</IncludeCompositeObjects>
+    <TargetDatabaseSet>True</TargetDatabaseSet>
+    <DefaultCollation>SQL_Latin1_General_CP1_CI_AS</DefaultCollation>
+    <DefaultFilegroup>PRIMARY</DefaultFilegroup>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <DefineDebug>false</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
+    <!-- Default to the v11.0 targets path if the targets file for the current VS version is not found -->
+    <SSDTExists Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets')">True</SSDTExists>
+    <VisualStudioVersion Condition="'$(SSDTExists)' == ''">11.0</VisualStudioVersion>
+  </PropertyGroup>
+  <Import Condition="'$(SQLDBExtensionsRefPath)' != ''" Project="$(SQLDBExtensionsRefPath)\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
+  <Import Condition="'$(SQLDBExtensionsRefPath)' == ''" Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
+  <ItemGroup>
+    <Folder Include="Properties" />
+    <Folder Include="Security\" />
+    <Folder Include="dbo\" />
+    <Folder Include="dbo\User Defined Types\" />
+    <Folder Include="Service Broker\" />
+    <Folder Include="dbo\XMLSchemaCollections\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Build Include="Security\TargetServersRole.sql" />
+    <Build Include="Security\SQLAgentUserRole.sql" />
+    <Build Include="Security\SQLAgentReaderRole.sql" />
+    <Build Include="Security\SQLAgentOperatorRole.sql" />
+    <Build Include="Security\DatabaseMailUserRole.sql" />
+    <Build Include="Security\db_ssisadmin.sql" />
+    <Build Include="Security\db_ssisltduser.sql" />
+    <Build Include="Security\db_ssisoperator.sql" />
+    <Build Include="Security\dc_operator.sql" />
+    <Build Include="Security\dc_admin.sql" />
+    <Build Include="Security\dc_proxy.sql" />
+    <Build Include="Security\PolicyAdministratorRole.sql" />
+    <Build Include="Security\ServerGroupAdministratorRole.sql" />
+    <Build Include="Security\ServerGroupReaderRole.sql" />
+    <Build Include="Security\UtilityCMRReader.sql" />
+    <Build Include="Security\UtilityIMRWriter.sql" />
+    <Build Include="Security\UtilityIMRReader.sql" />
+    <Build Include="Security\MS_DataCollectorInternalUser.sql" />
+    <Build Include="dbo\User Defined Types\syspolicy_target_filters_type.sql" />
+    <Build Include="Service Broker\__www.microsoft.com_databasemail_contracts_SendMail_v1.0.sql" />
+    <Build Include="Service Broker\{__www.microsoft.com_databasemail_messages}SendMail.sql" />
+    <Build Include="Service Broker\{__www.microsoft.com_databasemail_messages}SendMailStatus.sql" />
+    <Build Include="Security\DatabaseMailUserRole_1.sql" />
+    <Build Include="Security\db_ssisadmin_1.sql" />
+    <Build Include="Security\db_ssisltduser_1.sql" />
+    <Build Include="Security\db_ssisoperator_1.sql" />
+    <Build Include="Security\managed_backup.sql" />
+    <Build Include="Security\smart_admin.sql" />
+    <Build Include="Security\SQLAgentOperatorRole_1.sql" />
+    <Build Include="Security\SQLAgentReaderRole_1.sql" />
+    <Build Include="Security\SQLAgentUserRole_1.sql" />
+    <Build Include="Security\TargetServersRole_1.sql" />
+    <Build Include="Service Broker\InternalMailService.sql" />
+    <Build Include="Service Broker\ExternalMailService.sql" />
+    <Build Include="Service Broker\syspolicy_event_listener.sql" />
+    <Build Include="dbo\XMLSchemaCollections\schema_collection_Generic SQL Trace Collector Type.sql" />
+    <Build Include="dbo\XMLSchemaCollections\schema_collection_Generic T-SQL Query Collector Type.sql" />
+    <Build Include="dbo\XMLSchemaCollections\schema_collection_Performance Counters Collector Type.sql" />
+    <Build Include="dbo\XMLSchemaCollections\schema_collection_Query Activity Collector Type.sql" />
+    <Build Include="ExtendedProperties.sql" />
+    <Build Include="dbo\Table1.sql" />
+  </ItemGroup>
+</Project>
