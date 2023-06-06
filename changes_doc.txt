@@ -1,0 +1,5 @@
+05/22 - Szabi:
+
+-localdb létrehozása, sql server 2022-vel. https://www.microsoft.com/en-us/sql-server/sql-server-downloads
+-sql server 2022 updatelés - https://www.microsoft.com/en-us/download/details.aspx?id=105013
+-install httprepl: http requestek (dotnet tool install -g Microsoft.dotnet-httprepl)

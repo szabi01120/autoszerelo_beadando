@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "autoszerelo_munka_felvevo",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "autoszerelo_client", "autoszerelo_client\autoszerelo_client.csproj", "{8F396A96-BA19-4C90-8A66-4CD5FDF2846A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "autoszerelo_server", "autoszerelo_server\autoszerelo_server.csproj", "{D5E98742-0D68-40A8-8A9D-9DE53AF4480B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "autoszerelo_szerver", "autoszerelo_szerver\autoszerelo_szerver.csproj", "{B2B6EB53-302A-4AE6-810F-46B26DC15FFE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +23,10 @@ Global
 		{8F396A96-BA19-4C90-8A66-4CD5FDF2846A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8F396A96-BA19-4C90-8A66-4CD5FDF2846A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8F396A96-BA19-4C90-8A66-4CD5FDF2846A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D5E98742-0D68-40A8-8A9D-9DE53AF4480B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D5E98742-0D68-40A8-8A9D-9DE53AF4480B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D5E98742-0D68-40A8-8A9D-9DE53AF4480B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D5E98742-0D68-40A8-8A9D-9DE53AF4480B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B2B6EB53-302A-4AE6-810F-46B26DC15FFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B2B6EB53-302A-4AE6-810F-46B26DC15FFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B2B6EB53-302A-4AE6-810F-46B26DC15FFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B2B6EB53-302A-4AE6-810F-46B26DC15FFE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

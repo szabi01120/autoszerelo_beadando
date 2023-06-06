@@ -1,4 +1,4 @@
-namespace autoszerelo_server
+namespace autoszerelo_szerver
 {
     public class WeatherForecast
     {
