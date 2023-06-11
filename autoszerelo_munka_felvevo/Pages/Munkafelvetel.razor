@@ -1,12 +1,12 @@
-﻿@page "/Munkafelvetel"
+﻿@page "/munkafelvetel"
 
 <PageTitle>Munkafelvétel</PageTitle>
 
-<h1>Munkafelvetel</h1>
+<h1>Munkafelvétel</h1>
 
 <p role="status">Current count: @currentCount</p>
 
-<table>
+<table border=2>
   <tr>
     <th>Név</th>
     <th>Típus</th>
@@ -17,10 +17,10 @@
     <th>Súlyosság</th>
   </tr>
   <tr>
-    <td><input type="text" id="fname" name="fname"></td> <!--nev-->
-    <td><input type="text" id="ftipus" name="ftipus"></td> <!--tipus-->
-    <td><input type="text" id="frendszam" name="frendszam"></td> <!--rendszam-->
-    <td><input type="number" id="fev" name="fev"></td> <!--ev-->
+    <td><input type="text" id="fname" name="fname" size="18"></td> <!--nev-->
+    <td><input type="text" id="ftipus" name="ftipus" size="15"></td> <!--tipus-->
+    <td><input type="text" id="frendszam" name="frendszam" size="15"></td> <!--rendszam-->
+    <td><input type="number" id="fev" name="fev" size="10"></td> <!--ev-->
 
     <select name="kategoria" id="category">
       <option value="karosszeria">Karosszéria</option>
@@ -29,8 +29,8 @@
       <option value="fekberendezes">Fékberendezés</option>   
     </select>
 
-    <td><input type="text" id="fleiras" name="fleiras"></td> <!--leiras-->
-    <td><input type="text" id="fsuly" name="fsuly"></td> <!--sulyossal-->
+    <td><input type="text" id="fleiras" name="fleiras" size="20"></td> <!--leiras-->
+    <td><input type="text" id="fsuly" name="fsuly" size="10"></td> <!--sulyossal-->
   </tr>
 </table>
 
@@ -42,6 +42,6 @@
 
     private void AddToDatabase()
     {
-        currentCount++;
+        
     }
 }
