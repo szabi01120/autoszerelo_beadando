@@ -1,14 +1,16 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace autoszerelo_munka_felvevo.Model
+namespace autoszerelo_szerver.Model
 {
     public class AppDbContext : DbContext
     {
+        public DbSet<Munka> Items { get; set; }
         public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options)
         {
         }
 
-        public DbSet<Munka> Munkafelvetel { get; set; }
+        public virtual DbSet<Munka> Munkak { get; set; }
+
     }
 }

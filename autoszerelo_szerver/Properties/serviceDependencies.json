@@ -2,7 +2,7 @@
   "dependencies": {
     "mssql1": {
       "type": "mssql",
-      "connectionId": "ConnectionStrings:autoszerelo_db"
+      "connectionId": "ConnectionStrings:LocalDB"
     }
   }
 }

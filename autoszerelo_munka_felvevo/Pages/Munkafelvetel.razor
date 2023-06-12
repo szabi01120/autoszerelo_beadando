@@ -1,10 +1,11 @@
 ﻿@page "/munkafelvetel"
+@using autoszerelo_munka_felvevo.Model;
+@inject HttpClient httpClient;
+
 
 <PageTitle>Munkafelvétel</PageTitle>
 
 <h1>Munkafelvétel</h1>
-
-<p role="status">Current count: @currentCount</p>
 
 <table border=2>
   <tr>
@@ -17,31 +18,99 @@
     <th>Súlyosság</th>
   </tr>
   <tr>
-    <td><input type="text" id="fname" name="fname" size="18"></td> <!--nev-->
-    <td><input type="text" id="ftipus" name="ftipus" size="15"></td> <!--tipus-->
-    <td><input type="text" id="frendszam" name="frendszam" size="15"></td> <!--rendszam-->
-    <td><input type="number" id="fev" name="fev" size="10"></td> <!--ev-->
+    <td><input type="text" id="fname" name="fname" size="18" @bind="ujmunka.Nev"></td> <!--nev-->
+    <td><input type="text" id="ftipus" name="ftipus" size="15" @bind="ujmunka.Tipus"></td> <!--tipus-->
+    <td><input type="text" id="frendszam" name="frendszam" size="15" @bind="ujmunka.Rendszam"></td> <!--rendszam-->
+        <td><input type="number" id="fev" name="fev" size="10" @bind="ujmunka.Ev"></td> <!--ev-->
 
-    <select name="kategoria" id="category">
+    <select name="kategoria" id="category"  @bind="ujmunka.Kategoria">
       <option value="karosszeria">Karosszéria</option>
       <option value="motor">Motor</option>
       <option value="futomu">Futómű</option>
       <option value="fekberendezes">Fékberendezés</option>   
     </select>
 
-    <td><input type="text" id="fleiras" name="fleiras" size="20"></td> <!--leiras-->
-    <td><input type="text" id="fsuly" name="fsuly" size="10"></td> <!--sulyossal-->
+    <td><input type="text" id="fleiras" name="fleiras" size="20" @bind="ujmunka.Leiras"></td> <!--leiras-->
+    <td><input type="text" id="fsuly" name="fsuly" size="10" @bind="ujmunka.Sulyossag"></td> <!--sulyossag-->
   </tr>
 </table>
 
 <button class="btn btn-primary" @onclick="AddToDatabase">Küldés</button>
 
-@code {    
-    private int currentCount = 0;
+<button class="btn btn-secondary" @onclick="Test">TEST</button>
+
+<h3>Database GET KERES TESZTELESE, Get keres valojaban majd a cliensben kene hogy legyen...</h3>
+
+@if (items != null)
+{
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in items)
+            {
+                <tr>
+                    <td>@item.Nev</td>
+                    <td>@item.Leiras</td>
+                    <td>@item.Rendszam</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>Loading...</p>
+}
 
 
-    private void AddToDatabase()
+@code {
+
+    Munka ujmunka = new Munka();
+
+    private async Task AddToDatabase()
     {
-        
+
+        //var response = await httpClient.PostAsync("/Database");
+        //if (response.IsSuccessStatusCode)
+        //{
+        //    var items = await response.Content.ReadFromJsonAsync<List<Munka>>();
+        //    foreach(var data in items)
+        //    {
+        //        Console.WriteLine(data);
+        //    }
+        //    // Process the retrieved items
+        //}
+        //else
+        //{
+        //    Console.WriteLine("geci");
+        //    // Handle the error response
+        //}
+    }
+
+    private List<Munka> items;
+
+    private async Task Test()
+    {
+        var request = new HttpRequestMessage(HttpMethod.Get, "http://localhost:7093/Database");
+
+        // Set the mode to no-cors
+        request.SetBrowserRequestMode(BrowserRequestMode.NoCors);
+
+        var response = await httpClient.SendAsync(request);
+        if (response.IsSuccessStatusCode)
+        {
+            items = await response.Content.ReadFromJsonAsync<List<Munka>>();
+        }
+        else
+        {
+            Console.WriteLine(response.StatusCode);
+            Console.WriteLine("bajvan...");
+        }
     }
 }

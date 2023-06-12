@@ -1,10 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace autoszerelo_szerver.Model
+﻿namespace autoszerelo_munka_felvevo.Model
 {
     public class Munka
     {
-        [Key]
         public string Nev { get; set; }
         public string Tipus { get; set; }
         public string Rendszam { get; set; }

@@ -4,7 +4,7 @@
       "secretStore": "LocalSecretsFile",
       "resourceId": null,
       "type": "mssql.local",
-      "connectionId": "ConnectionStrings:autoszerelo_db"
+      "connectionId": "ConnectionStrings:LocalDB"
     }
   }
 }
