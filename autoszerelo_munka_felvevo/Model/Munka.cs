@@ -1,13 +1,27 @@
-﻿namespace autoszerelo_munka_felvevo.Model
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace autoszerelo_munka_felvevo.Model
 {
     public class Munka
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
+        [Required(ErrorMessage = "Kötelező mező!")]
         public string Nev { get; set; }
+        [Required(ErrorMessage = "Kötelező mező!")]
         public string Tipus { get; set; }
+        [Required(ErrorMessage = "Kötelező mező!")]
         public string Rendszam { get; set; }
+        [Required(ErrorMessage = "Kötelező mező!")]
         public int Ev { get; set; }
+        [Required(ErrorMessage = "Kötelező mező!")]
         public string Kategoria { get; set; }
+        [Required(ErrorMessage = "Kötelező mező!")]
         public string Leiras { get; set; }
-        public string Sulyossag { get; set; }
+        [Required(ErrorMessage = "Kötelező mező!")]
+        [Range(0, 10, ErrorMessage = "Ezen mező értéke 1 és 10 között kell, hogy legyen!")]
+        public int Sulyossag { get; set; }
     }
 }

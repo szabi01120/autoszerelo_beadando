@@ -1,13 +1,13 @@
 ﻿@page "/munkafelvetel"
-@using autoszerelo_munka_felvevo.Model;
-@inject HttpClient httpClient;
+@using autoszerelo_munka_felvevo.Model
+@inject HttpClient HttpClient
 
 
 <PageTitle>Munkafelvétel</PageTitle>
 
 <h1>Munkafelvétel</h1>
 
-<table border=2>
+<table border=2 class="table table-light">
   <tr>
     <th>Név</th>
     <th>Típus</th>
@@ -18,10 +18,10 @@
     <th>Súlyosság</th>
   </tr>
   <tr>
-    <td><input type="text" id="fname" name="fname" size="18" @bind="ujmunka.Nev"></td> <!--nev-->
-    <td><input type="text" id="ftipus" name="ftipus" size="15" @bind="ujmunka.Tipus"></td> <!--tipus-->
-    <td><input type="text" id="frendszam" name="frendszam" size="15" @bind="ujmunka.Rendszam"></td> <!--rendszam-->
-        <td><input type="number" id="fev" name="fev" size="10" @bind="ujmunka.Ev"></td> <!--ev-->
+    <td><input type="text" id="fname" name="fname" size="18" @bind="ujmunka.Nev"></td>
+    <td><input type="text" id="ftipus" name="ftipus" size="15" @bind="ujmunka.Tipus"></td>
+    <td><input type="text" id="frendszam" name="frendszam" size="15" @bind="ujmunka.Rendszam"></td>
+        <td><input type="number" id="fev" name="fev" size="10" @bind="ujmunka.Ev"></td>
 
     <select name="kategoria" id="category"  @bind="ujmunka.Kategoria">
       <option value="karosszeria">Karosszéria</option>
@@ -30,87 +30,31 @@
       <option value="fekberendezes">Fékberendezés</option>   
     </select>
 
-    <td><input type="text" id="fleiras" name="fleiras" size="20" @bind="ujmunka.Leiras"></td> <!--leiras-->
-    <td><input type="text" id="fsuly" name="fsuly" size="10" @bind="ujmunka.Sulyossag"></td> <!--sulyossag-->
+    <td><input type="text" id="fleiras" name="fleiras" size="20" @bind="ujmunka.Leiras"></td>
+    <td><input type="text" id="fsuly" name="fsuly" size="10" @bind="ujmunka.Sulyossag"></td>
   </tr>
 </table>
 
-<button class="btn btn-primary" @onclick="AddToDatabase">Küldés</button>
-
-<button class="btn btn-secondary" @onclick="Test">TEST</button>
-
-<h3>Database GET KERES TESZTELESE, Get keres valojaban majd a cliensben kene hogy legyen...</h3>
-
-@if (items != null)
-{
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Description</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in items)
-            {
-                <tr>
-                    <td>@item.Nev</td>
-                    <td>@item.Leiras</td>
-                    <td>@item.Rendszam</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-else
-{
-    <p>Loading...</p>
-}
-
+<button class="btn btn-primary" @onclick="HozzaadasAdatbazishoz">Küldés</button>
 
 @code {
 
-    Munka ujmunka = new Munka();
+    public Munka ujmunka = new Munka();
 
-    private async Task AddToDatabase()
+    protected async Task HozzaadasAdatbazishoz()
     {
-
-        //var response = await httpClient.PostAsync("/Database");
-        //if (response.IsSuccessStatusCode)
-        //{
-        //    var items = await response.Content.ReadFromJsonAsync<List<Munka>>();
-        //    foreach(var data in items)
-        //    {
-        //        Console.WriteLine(data);
-        //    }
-        //    // Process the retrieved items
-        //}
-        //else
-        //{
-        //    Console.WriteLine("geci");
-        //    // Handle the error response
-        //}
-    }
-
-    private List<Munka> items;
-
-    private async Task Test()
-    {
-        var request = new HttpRequestMessage(HttpMethod.Get, "http://localhost:7093/Database");
-
-        // Set the mode to no-cors
-        request.SetBrowserRequestMode(BrowserRequestMode.NoCors);
-
-        var response = await httpClient.SendAsync(request);
-        if (response.IsSuccessStatusCode)
+        Console.WriteLine("uj munka: " + ujmunka.Nev);
+        var valasz = await HttpClient.PostAsJsonAsync("http://localhost:5248/Database", ujmunka);
+        if (valasz.IsSuccessStatusCode)
         {
-            items = await response.Content.ReadFromJsonAsync<List<Munka>>();
+            Console.WriteLine("Atment elv!");
         }
         else
         {
-            Console.WriteLine(response.StatusCode);
-            Console.WriteLine("bajvan...");
+            Console.WriteLine("Gatya");
         }
+
+        //Reset...
+        ujmunka = new Munka();
     }
 }

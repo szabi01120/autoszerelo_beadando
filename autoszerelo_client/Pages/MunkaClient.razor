@@ -1,0 +1,43 @@
+﻿@page "/munkaclient"
+@using autoszerelo_munka_client.Model
+@inject HttpClient HttpClient
+<h3>MunkaClient</h3>
+
+<button class="btn btn-secondary" @onclick="AdatokAdatbazisbol">Adatok lekérése</button>
+
+@if (Munkak != null)
+{
+    <table class="table table-light">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var adott_munka in Munkak)
+            {
+                <tr>
+                    <td>@adott_munka.Nev</td>
+                    <td>@adott_munka.Leiras</td>
+                    <td>@adott_munka.Rendszam</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>Loading...</p>
+}
+
+
+@code {
+    private IEnumerable<Munka>? Munkak { get; set; }
+
+    protected async Task AdatokAdatbazisbol()
+    {
+        Munkak = await HttpClient.GetFromJsonAsync<IEnumerable<Munka>>("http://localhost:5248/Database");
+    }
+}

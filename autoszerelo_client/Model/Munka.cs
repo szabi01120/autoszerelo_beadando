@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace autoszerelo_szerver.Model
+namespace autoszerelo_munka_client.Model
 {
     public class Munka
     {

@@ -17,17 +17,9 @@ builder.Services.AddDbContext<AppDbContext>(
                 options.UseSqlServer(builder.Configuration.GetConnectionString("LocalDB"));
     });
 
-builder.Services.AddCors(options =>
-{
-    options.AddDefaultPolicy(builder =>
-    {
-        builder.AllowAnyOrigin();
-        builder.AllowAnyMethod();
-        builder.AllowAnyHeader();
-    });
-});
-
 var app = builder.Build();
+
+app.UseCors(o => o.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
