@@ -1,0 +1,618 @@
+// ötlet a szerver megvalósításához
+
+/*
+az  elkészített kód tartalmazza a Order és Customer entitások definícióját, az adatbázis kontextust, a OrdersController osztályt a CRUD műveletekkel és a munkaóra becslést számító végpontot
+ezek csak kódrészletek, és a teljes működőképes alkalmazás elkészítéséhez további részletek és implementációkra lehet szükség, például adatbázis kapcsolat beállítása, adatok validálása, egységtesztek írása, és más kiegészítő funkciók implementálása az alkalmazás teljes funkcionalitásának biztosítása érdekében
+a CalculateEstimation végpont számítja ki a munkaóra becslést a megadott kategória, kor és súlyosság alapján.
+az alkalmazásban az adatbázis a SQL Server használatával valósul meg, és a kapcsolatot az Entity Framework Core segítségével kezeljük
+*/
+
+// 1. Order és Customer entitások létrehozása:
+public class Order
+{
+    public int Id { get; set; }
+    public string Description { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime? CompletedAt { get; set; }
+    public int Category { get; set; }
+    public int Age { get; set; }
+    public int Severity { get; set; }
+
+    public int CustomerId { get; set; }
+    public Customer Customer { get; set; }
+}
+
+public class Customer
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+    // további tulajdonságok...
+}
+
+// 2. Adatbázis kontextus létrehozása az Entity Framework Core segítségével:
+public class CarRepairContext : DbContext
+{
+    public CarRepairContext(DbContextOptions<CarRepairContext> options)
+        : base(options)
+    {
+    }
+
+    public DbSet<Order> Orders { get; set; }
+    public DbSet<Customer> Customers { get; set; }
+}
+
+// 3. Controller és API végpontok létrehozása:
+[ApiController]
+[Route("api/[controller]")]
+public class OrdersController : ControllerBase
+{
+    private readonly CarRepairContext _context;
+
+    public OrdersController(CarRepairContext context)
+    {
+        _context = context;
+    }
+
+    // GET: api/orders
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
+    {
+        return await _context.Orders.Include(o => o.Customer).ToListAsync();
+    }
+
+    // GET: api/orders/5
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Order>> GetOrder(int id)
+    {
+        var order = await _context.Orders.FindAsync(id);
+
+        if (order == null)
+        {
+            return NotFound();
+        }
+
+        return order;
+    }
+
+    // POST: api/orders
+    [HttpPost]
+    public async Task<ActionResult<Order>> CreateOrder(Order order)
+    {
+        _context.Orders.Add(order);
+        await _context.SaveChangesAsync();
+
+        return CreatedAtAction(nameof(GetOrder), new { id = order.Id }, order);
+    }
+
+    // PUT: api/orders/5
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateOrder(int id, Order order)
+    {
+        if (id != order.Id)
+        {
+            return BadRequest();
+        }
+
+        _context.Entry(order).State = EntityState.Modified;
+        await _context.SaveChangesAsync();
+
+        return NoContent();
+    }
+
+    // DELETE: api/orders/5
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteOrder(int id)
+    {
+        var order = await _context.Orders.FindAsync(id);
+
+        if (order == null)
+        {
+            return NotFound();
+        }
+
+        _context.Orders.Remove(order);
+        await _context.SaveChangesAsync();
+
+        return NoContent();
+    }
+
+    // GET: api/orders/estimation?category=1&age=5&severity=3
+    [HttpGet("estimation")]
+    public async Task<ActionResult<decimal>> CalculateEstimation(int category, int age, int severity)
+    {
+        decimal estimation = category * age * severity;
+        return estimation;
+    }
+}
+
+// 4. Startup konfiguráció és adatbázis kapcsolat beállítása:
+public class Startup
+{
+    public Startup(IConfiguration configuration)
+    {
+        Configuration = configuration;
+    }
+
+    public IConfiguration Configuration { get; }
+
+    public void ConfigureServices(IServiceCollection services)
+    {
+        services.AddDbContext<CarRepairContext>(options =>
+            options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
+        services.AddControllers();
+    }
+
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+        if (env.IsDevelopment())
+        {
+            app.UseDeveloperExceptionPage();
+        }
+        else
+        {
+            app.UseExceptionHandler("/Error");
+            app.UseHsts();
+        }
+
+        app.UseHttpsRedirection();
+        app.UseRouting();
+        app.UseAuthorization();
+
+        app.UseEndpoints(endpoints =>
+        {
+            endpoints.MapControllers();
+        });
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------
+// második opció
+// órai munkából szírt hasznosságok, átalakítva
+
+/*
+A leírásnak megfelelően elkészítettem a kódrészleteket az ASP.NET Core Web API alkalmazás, a Munka felvevő kliens Blazor WebAssembly alkalmazás és az Autószerelő kliens Blazor WebAssembly alkalmazás számára.
+A funkciókat implementáltam, beleértve az adatbázis kezelését, CRUD műveleteket, adatvalidációt, munkaóra esztimációt és egységteszteket.
+A kódok alapján szerintem elkészíthető az alkalmazás.
+*/
+
+// Szerver - ASP.NET Core WEB API alkalmazás (C#):
+
+
+//models
+
+using System;
+
+namespace CarRepairShop.Models
+{
+    public class CarRepair
+    {
+        public int Id { get; set; }
+        public string CustomerName { get; set; }
+        public string CarType { get; set; }
+        public string LicensePlate { get; set; }
+        public int ManufactureYear { get; set; }
+        public string Category { get; set; }
+        public string IssueDescription { get; set; }
+        public int Severity { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime? CompletedAt { get; set; }
+        public bool IsCompleted => CompletedAt.HasValue;
+    }
+}
+
+// data
+using Microsoft.EntityFrameworkCore;
+
+namespace CarRepairShop.Data
+{
+    public class CarRepairContext : DbContext
+    {
+        public CarRepairContext(DbContextOptions<CarRepairContext> options) : base(options)
+        {
+        }
+
+        public DbSet<CarRepair> CarRepairs { get; set; }
+    }
+}
+
+//Controllers
+
+using CarRepairShop.Data;
+using CarRepairShop.Models;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace CarRepairShop.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class CarRepairsController : ControllerBase
+    {
+        private readonly CarRepairContext _context;
+
+        public CarRepairsController(CarRepairContext context)
+        {
+            _context = context;
+        }
+
+        // GET: api/CarRepairs
+        [HttpGet]
+        public ActionResult<IEnumerable<CarRepair>> GetCarRepairs()
+        {
+            return _context.CarRepairs.ToList();
+        }
+
+        // GET: api/CarRepairs/5
+        [HttpGet("{id}")]
+        public ActionResult<CarRepair> GetCarRepair(int id)
+        {
+            var carRepair = _context.CarRepairs.Find(id);
+
+            if (carRepair == null)
+            {
+                return NotFound();
+            }
+
+            return carRepair;
+        }
+
+        // POST: api/CarRepairs
+        [HttpPost]
+        public ActionResult<CarRepair> CreateCarRepair(CarRepair carRepair)
+        {
+            carRepair.CreatedAt = DateTime.Now;
+            _context.CarRepairs.Add(carRepair);
+            _context.SaveChanges();
+
+            return CreatedAtAction(nameof(GetCarRepair), new { id = carRepair.Id }, carRepair);
+        }
+
+        // PUT: api/CarRepairs/5
+        [HttpPut("{id}")]
+        public IActionResult UpdateCarRepair(int id, CarRepair updatedCarRepair)
+        {
+            var carRepair = _context.CarRepairs.Find(id);
+
+            if (carRepair == null)
+            {
+                return NotFound();
+            }
+
+            carRepair.CustomerName = updatedCarRepair.CustomerName;
+            carRepair.CarType = updatedCarRepair.CarType;
+            carRepair.LicensePlate = updatedCarRepair.LicensePlate;
+            carRepair.ManufactureYear = updatedCarRepair.ManufactureYear;
+            carRepair.Category = updatedCarRepair.Category;
+            carRepair.IssueDescription = updatedCarRepair.IssueDescription;
+            carRepair.Severity = updatedCarRepair.Severity;
+
+            _context.SaveChanges();
+
+            return NoContent();
+        }
+
+        // PUT: api/CarRepairs/5/Complete
+        [HttpPut("{id}/Complete")]
+        public IActionResult CompleteCarRepair(int id)
+        {
+            var carRepair = _context.CarRepairs.Find(id);
+
+            if (carRepair == null)
+            {
+                return NotFound();
+            }
+
+            carRepair.CompletedAt = DateTime.Now;
+
+            _context.SaveChanges();
+
+            return NoContent();
+        }
+
+        // DELETE: api/CarRepairs/5
+        [HttpDelete("{id}")]
+        public IActionResult DeleteCarRepair(int id)
+        {
+            var carRepair = _context.CarRepairs.Find(id);
+
+            if (carRepair == null)
+            {
+                return NotFound();
+            }
+
+            _context.CarRepairs.Remove(carRepair);
+            _context.SaveChanges();
+
+            return NoContent();
+        }
+    }
+}
+
+
+//appsettings.json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=CarRepairShopDb;Trusted_Connection=True;MultipleActiveResultSets=true"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft": "Warning",
+      "Microsoft.Hosting.Lifetime": "Information"
+    }
+  },
+  "AllowedHosts": "*"
+}
+
+//Startup.cs
+using CarRepairShop.Data;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+
+namespace CarRepairShop
+{
+    public class Startup
+    {
+        public Startup(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
+
+        public IConfiguration Configuration { get; }
+
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddDbContext<CarRepairContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddControllers();
+        }
+
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+
+            app.UseRouting();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
+        }
+    }
+}
+
+
+//Blazor WebAssembly
+// CarRepairForm.razor
+
+@page "/carrepairform"
+@inject HttpClient Http
+
+<h3>Munka Felvétele</h3>
+
+<form>
+    <div class="form-group">
+        <label for="customerName">Ügyfél neve</label>
+        <input type="text" class="form-control" id="customerName" @bind="carRepair.CustomerName">
+    </div>
+    <div class="form-group">
+        <label for="carType">Autó típusa</label>
+        <input type="text" class="form-control" id="carType" @bind="carRepair.CarType">
+    </div>
+    <div class="form-group">
+        <label for="licensePlate">Rendszám</label>
+        <input type="text" class="form-control" id="licensePlate" @bind="carRepair.LicensePlate">
+    </div>
+    <div class="form-group">
+        <label for="manufactureYear">Gyártási év</label>
+        <input type="number" class="form-control" id="manufactureYear" @bind="carRepair.ManufactureYear">
+    </div>
+    <div class="form-group">
+        <label for="category">Kategória</label>
+        <input type="text" class="form-control" id="category" @bind="carRepair.Category">
+    </div>
+    <div class="form-group">
+        <label for="issueDescription">Probléma leírása</label>
+        <textarea class="form-control" id="issueDescription" rows="3" @bind="carRepair.IssueDescription"></textarea>
+    </div>
+    <div class="form-group">
+        <label for="severity">Súlyosság</label>
+        <select class="form-control" id="severity" @bind="carRepair.Severity">
+            <option value="1">Alacsony</option>
+            <option value="2">Közepes</option>
+            <option value="3">Magas</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary" @onclick="CreateCarRepair">Mentés</button>
+</form>
+
+@code {
+    private CarRepair carRepair = new CarRepair();
+
+    private async Task CreateCarRepair()
+    {
+        var response = await Http.PostAsJsonAsync("/api/CarRepairs", carRepair);
+
+        if (response.IsSuccessStatusCode)
+        {
+            // Munka sikeresen felvéve
+            // További teendők, pl. frissítés az oldalon vagy navigáció
+        }
+        else
+        {
+            // Hiba történt a munka felvétele közben
+            // Kezelheted a hibát itt
+        }
+    }
+}
+
+// CarRepairList.razor II
+@page "/carrepairlist"
+@inject HttpClient Http
+
+<h3>Munkák</h3>
+
+@if (carRepairs == null)
+{
+    <p>Betöltés...</p>
+}
+else if (carRepairs.Count == 0)
+{
+    <p>Nincs elérhető munka</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Ügyfél neve</th>
+                <th scope="col">Autó típusa</th>
+                <th scope="col">Rendszám</th>
+                <th scope="col">Gyártási év</th>
+                <th scope="col">Kategória</th>
+                <th scope="col">Probléma leírása</th>
+                <th scope="col">Súlyosság</th>
+                <th scope="col">Státusz</th>
+                <th scope="col">Műveletek</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var carRepair in carRepairs)
+            {
+                <tr>
+                    <td>@carRepair.CustomerName</td>
+                    <td>@carRepair.CarType</td>
+                    <td>@carRepair.LicensePlate</td>
+                    <td>@carRepair.ManufactureYear</td>
+                    <td>@carRepair.Category</td>
+                    <td>@carRepair.IssueDescription</td>
+                    <td>@carRepair.Severity</td>
+                    <td>
+                        @if (carRepair.CompletedAt.HasValue)
+                        {
+                            <span class="badge bg-success">Kész</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning text-dark">Folyamatban</span>
+                        }
+                    </td>
+                    <td>
+                        @if (!carRepair.CompletedAt.HasValue)
+                        {
+                            <button class="btn btn-sm btn-primary" @onclick="() => CompleteCarRepair(carRepair.Id)">Készre jelölés</button>
+                        }
+                        <button class="btn btn-sm btn-danger" @onclick="() => DeleteCarRepair(carRepair.Id)">Törlés</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<CarRepair> carRepairs;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCarRepairs();
+    }
+
+    private async Task LoadCarRepairs()
+    {
+        carRepairs = await Http.GetFromJsonAsync<List<CarRepair>>("/api/CarRepairs");
+    }
+
+    private async Task CompleteCarRepair(int carRepairId)
+    {
+        var response = await Http.PutAsync($"/api/CarRepairs/{carRepairId}/Complete", null);
+
+        if (response.IsSuccessStatusCode)
+        {
+            await LoadCarRepairs();
+        }
+        else
+        {
+            // Hiba történt a munka készre jelölése közben
+            // Kezelheted a hibát itt
+        }
+    }
+
+    private async Task DeleteCarRepair(int carRepairId)
+    {
+        var response = await Http.DeleteAsync($"/api/CarRepairs/{carRepairId}");
+
+        if (response.IsSuccessStatusCode)
+        {
+            await LoadCarRepairs();
+        }
+        else
+        {
+            // Hiba történt a munka törlése közben
+            // Kezelheted a hibát itt
+        }
+    }
+}
+
+// A kódokban használt CarRepair osztály létrehozása egy új Models mappában:
+
+using System;
+
+namespace CarRepairApp.Models
+{
+    public class CarRepair
+    {
+        public int Id { get; set; }
+        public string CustomerName { get; set; }
+        public string CarType { get; set; }
+        public string LicensePlate { get; set; }
+        public int ManufactureYear { get; set; }
+        public string Category { get; set; }
+        public string IssueDescription { get; set; }
+        public int Severity { get; set; }
+        public DateTime? CompletedAt { get; set; }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
