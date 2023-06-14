@@ -1,3 +1,13 @@
+06/14
+szóban cserélt infók:
+illetve eddig munka feltöltése
+Tipus validacio
+Munka ido estimated
+Put delete get id http keresek
+Databasecontroller.cs
+Post get blazorban pipa
+Vidik adatbase entity framework
+
 05/22 - Szabi:
 
 -localdb létrehozása, sql server 2022-vel. https://www.microsoft.com/en-us/sql-server/sql-server-downloads
