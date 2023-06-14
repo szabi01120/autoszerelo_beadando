@@ -1,0 +1,311 @@
+// client
+
+//munka.cs
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace autoszerelo_munka_client.Model
+{
+    public class Munka
+    {
+        public int Id { get; set; }
+
+        [Required(ErrorMessage = "Ügyfél neve kötelező.")]
+        [RegularExpression(@"^[^\s!?_\-:;#]+$", ErrorMessage = "Ügyfél név nem lehet üres és nem tartalmazhat speciális karaktereket.")]
+        public string UgyfelNeve { get; set; }
+
+        [Required(ErrorMessage = "Autó típusa és rendszáma kötelező.")]
+        [RegularExpression(@"^(?!.*[\s!?_\-:;#])^[A-Z]{3}-\d{3}$", ErrorMessage = "Autó típusa és rendszáma nem lehet üres és nem tartalmazhat speciális karaktereket. Rendszám formátuma: XXX-000")]
+        public string AutoTipusRendszam { get; set; }
+
+        [Required(ErrorMessage = "Gyártási év kötelező.")]
+        [RegularExpression(@"^\d+$", ErrorMessage = "Gyártási év csak számokat tartalmazhat.")]
+        public int GyartasiEv { get; set; }
+
+        [Required(ErrorMessage = "Munka kategória kötelező.")]
+        [RegularExpression(@"^(Karosszéria|motor|futómű|fékberendezés)$", ErrorMessage = "Érvénytelen munka kategória.")]
+        public string MunkaKategoria { get; set; }
+
+        [Required(ErrorMessage = "Az autó hibájának leírása kötelező.")]
+        public string HibaLeiras { get; set; }
+
+        [Required(ErrorMessage = "A hiba súlyossága kötelező.")]
+        [Range(1, 10, ErrorMessage = "A hiba súlyossága 1 és 10 közötti szám lehet.")]
+        public int HibaSulyossaga { get; set; }
+
+        public string Allapot { get; set; }
+    }
+}
+
+
+
+//munkaclient.razor
+@page "/munkaclient"
+@using autoszerelo_munka_client.Model
+@inject HttpClient HttpClient
+
+<PageTitle>Autoszerelo_Kliens</PageTitle>
+
+<h3>Autószerelő Kliens</h3>
+<button class="btn btn-secondary" @onclick="LoadData">Adatok lekérése</button>
+
+@if (Munkak != null)
+{
+    <table class="table table-light">
+        <thead>
+            <tr>
+                <th>Ügyfél neve</th>
+                <th>Autó típusa és rendszáma</th>
+                <th>Gyártási év</th>
+                <th>Munka kategória</th>
+                <th>Hiba rövid leírása</th>
+                <th>Hiba súlyossága</th>
+                <th>Állapot</th>
+                <th>Műveletek</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var munka in Munkak)
+            {
+                <tr>
+                    <td>@munka.UgyfelNeve</td>
+                    <td>@munka.AutoTipusRendszam</td>
+                    <td>@munka.GyartasiEv</td>
+                    <td>@munka.MunkaKategoria</td>
+                    <td>@munka.HibaLeiras</td>
+                    <td>@munka.HibaSulyossaga</td>
+                    <td>@munka.Allapot</td>
+                    <td>
+                        @if (munka.Allapot == "Felvett munka")
+                        {
+                            <button class="btn btn-success" @onclick="(() => ChangeStatus(munka, "Elvégzés alatt"))">Elvégzés alatt</button>
+                        }
+                        else if (munka.Allapot == "Elvégzés alatt")
+                        {
+                            <button class="btn btn-primary" @onclick="(() => ChangeStatus(munka, "Befejezett"))">Befejezett</button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>Loading...</p>
+}
+
+@code {
+    private List<Munka> Munkak { get; set; }
+
+    protected async Task LoadData()
+    {
+        Munkak = await HttpClient.GetFromJsonAsync<List<Munka>>("http://localhost:5248/Database");
+    }
+
+    protected async Task ChangeStatus(Munka munka, string newStatus)
+    {
+        munka.Allapot = newStatus;
+        await HttpClient.PutAsJsonAsync($"http://localhost:5248/Database/{munka.Id}", munka);
+    }
+}
+
+
+
+
+
+--------------------------------------------------------
+// felvevo
+
+munka.cs
+using System.ComponentModel.DataAnnotations;
+
+namespace autoszerelo_munka_client.Model
+{
+    public class Munka
+    {
+        [Required(ErrorMessage = "Ügyfél neve kötelező.")]
+        [RegularExpression(@"^[^\s!?_\-:;#]+$", ErrorMessage = "Ügyfél név nem lehet üres és nem tartalmazhat speciális karaktereket.")]
+        public string UgyfelNeve { get; set; }
+
+        [Required(ErrorMessage = "Autó típusa és rendszáma kötelező.")]
+        [RegularExpression(@"^(?!.*[\s!?_\-:;#])^[A-Z]{3}-\d{3}$", ErrorMessage = "Autó típusa és rendszáma nem lehet üres és nem tartalmazhat speciális karaktereket. Rendszám formátuma: XXX-000")]
+        public string AutoTipusRendszam { get; set; }
+
+        [Required(ErrorMessage = "Gyártási év kötelező.")]
+        [RegularExpression(@"^\d+$", ErrorMessage = "Gyártási év csak számokat tartalmazhat.")]
+        public int GyartasiEv { get; set; }
+
+        [Required(ErrorMessage = "Munka kategória kötelező.")]
+        [RegularExpression(@"^(Karosszéria|motor|futómű|fékberendezés)$", ErrorMessage = "Érvénytelen munka kategória.")]
+        public string MunkaKategoria { get; set; }
+
+        [Required(ErrorMessage = "Az autó hibájának leírása kötelező.")]
+        public string HibaLeiras { get; set; }
+
+        [Required(ErrorMessage = "A hiba súlyossága kötelező.")]
+        [Range(1, 10, ErrorMessage = "A hiba súlyossága 1 és 10 közötti szám lehet.")]
+        public int HibaSulyossaga { get; set; }
+    }
+}
+
+//munkafelvetel
+@page "/munkaclient"
+@using autoszerelo_munka_client.Model
+@using System.ComponentModel.DataAnnotations;
+@inject HttpClient HttpClient
+
+<PageTitle>Munkafelvétel</PageTitle>
+
+<h3>MunkaFelvevo</h3>
+<button class="btn btn-secondary" @onclick="LoadData">Adatok lekérése</button>
+
+@if (Munkak != null)
+{
+<table class="table table-light">
+<thead>
+<tr>
+<th>Ügyfél neve</th>
+<th>Autó típusa és rendszáma</th>
+<th>Gyártási év</th>
+<th>Munka kategória</th>
+<th>Az autó hibájának leírása</th>
+<th>A hiba súlyossága</th>
+</tr>
+</thead>
+<tbody>
+@foreach (var munka in Munkak)
+{
+<tr>
+<td>@munka.UgyfelNeve</td>
+<td>@munka.AutoTipusRendszam</td>
+<td>@munka.GyartasiEv</td>
+<td>@munka.MunkaKategoria</td>
+<td>@munka.HibaLeiras</td>
+<td>@munka.HibaSulyossaga</td>
+</tr>
+}
+</tbody>
+</table>
+}
+else
+{
+<p>Loading...</p>
+}
+
+<h3>Új ügyfél felvétele</h3>
+<form>
+    <div class="form-group">
+        <label>Ügyfél neve:</label>
+        <input class="form-control" @bind="@UjMunka.UgyfelNeve" />
+    </div>
+    <div class="form-group">
+        <label>Autó típusa és rendszáma:</label>
+        <input class="form-control" @bind="@UjMunka.AutoTipusRendszam" />
+    </div>
+    <div class="form-group">
+        <label>Gyártási év:</label>
+        <input class="form-control" type="number" @bind="@UjMunka.GyartasiEv" />
+    </div>
+    <div class="form-group">
+        <label>Munka kategória:</label>
+        <select class="form-control" @bind="@UjMunka.MunkaKategoria">
+            <option>Karosszéria</option>
+            <option>motor</option>
+            <option>futómű</option>
+            <option>fékberendezés</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label>Az autó hibájának leírása:</label>
+        <textarea class="form-control" @bind="@UjMunka.HibaLeiras"></textarea>
+    </div>
+    <div class="form-group">
+        <label>A hiba súlyossága (1-10):</label>
+        <input class="form-control" type="number" min="1" max="10" @bind="@UjMunka.HibaSulyossaga" />
+    </div>
+    <button class="btn btn-primary" @onclick="AddNewMunka">Felvétel</button>
+</form>
+@code {
+private List<Munka> Munkak { get; set; }
+private Munka UjMunka { get; set; } = new Munka();
+protected async Task LoadData()
+{
+    Munkak = await HttpClient.GetFromJsonAsync<List<Munka>>("http://localhost:5248/Database");
+}
+
+protected async Task AddNewMunka()
+{
+    // Validáció ellenőrzése
+    if (ValidateMunka(UjMunka))
+    {
+        // Új ügyfél hozzáadása a listához vagy adatbázishoz
+        Munkak.Add(UjMunka);
+
+        // Üres mezők visszaállítása
+        UjMunka = new Munka();
+    }
+}
+
+private bool ValidateMunka(Munka munka)
+{
+    // Validáció ellenőrzése a Munka osztály attribútumain
+    var validationContext = new System.ComponentModel.DataAnnotations.ValidationContext(munka);
+    var validationResults = new List<System.ComponentModel.DataAnnotations.ValidationResult>();
+    bool isValid = Validator.TryValidateObject(munka, validationContext, validationResults, true);
+
+    return isValid;
+}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
