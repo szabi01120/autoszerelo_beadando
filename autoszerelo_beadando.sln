@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "autoszerelo_client", "autos
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "autoszerelo_szerver", "autoszerelo_szerver\autoszerelo_szerver.csproj", "{B2B6EB53-302A-4AE6-810F-46B26DC15FFE}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "autoszerelo_munka_felvevo.Tests", "autoszerelo_munka_felvevo.Tests\autoszerelo_munka_felvevo.Tests.csproj", "{1540253C-896C-42A1-BD1B-1087828D8E2C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{B2B6EB53-302A-4AE6-810F-46B26DC15FFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B2B6EB53-302A-4AE6-810F-46B26DC15FFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B2B6EB53-302A-4AE6-810F-46B26DC15FFE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1540253C-896C-42A1-BD1B-1087828D8E2C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1540253C-896C-42A1-BD1B-1087828D8E2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1540253C-896C-42A1-BD1B-1087828D8E2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1540253C-896C-42A1-BD1B-1087828D8E2C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
