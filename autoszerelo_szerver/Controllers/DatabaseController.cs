@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using autoszerelo_szerver.Model;
 using Microsoft.EntityFrameworkCore;
+using autoszerelo_szerver.Functions;
+
 
 namespace autoszerelo_szerver.Controllers
 {
@@ -20,7 +22,7 @@ namespace autoszerelo_szerver.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id)
         {
-            var letezo_munka = await _dbContext.Munkak.FindAsync(id);
+            var letezo_munka = await _dbContext.Munkak.FindAsync(int.Parse(id));
 
             if (letezo_munka is null)
             {
@@ -45,7 +47,7 @@ namespace autoszerelo_szerver.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<IEnumerable<Munka>>> GetEgyMunka(string id)
         {
-            var adott_munka = await _dbContext.Munkak.FindAsync(id);
+            var adott_munka = await _dbContext.Munkak.FindAsync(int.Parse(id));
 
             if (adott_munka is null)
             {
@@ -58,6 +60,7 @@ namespace autoszerelo_szerver.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] Munka munka)
         {
+            munka.MunkaOra = Esztimacio.MunkaEsztimacio(munka);
             _dbContext.Munkak.Add(munka);
             await _dbContext.SaveChangesAsync();
 
@@ -81,6 +84,8 @@ namespace autoszerelo_szerver.Controllers
             letezo_munka.MunkaKategoria = munka.MunkaKategoria;
             letezo_munka.HibaLeiras = munka.HibaLeiras;
             letezo_munka.HibaSulyossaga = munka.HibaSulyossaga;
+            letezo_munka.MunkaAllapota = munka.MunkaAllapota;
+            letezo_munka.MunkaOra = Esztimacio.MunkaEsztimacio(munka);
 
             await _dbContext.SaveChangesAsync();
 
