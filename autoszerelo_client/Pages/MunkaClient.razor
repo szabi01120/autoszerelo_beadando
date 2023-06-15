@@ -159,7 +159,7 @@ else
         if (munka != null)
         {
             munka.MunkaAllapota = ujAllapot;
-            await HttpClient.PutAsJsonAsync($"http://localhost:5248/Database/{munkaId}", munka);
+            await HttpClient.PutAsJsonAsync($"http://localhost:5248/Database/{munkaId.ToString()}", munka);
         }
     }
     private void SearchColumn()
