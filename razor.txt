@@ -138,6 +138,57 @@ else
     private Munka UjMunka { get; set; } = new Munka();
     private bool IsSubmitted { get; set; } = false;
     private List<Munka> Munkak { get; set; }
+    private string SortColumn { get; set; } // Az aktuálisan kiválasztott rendezés oszlopa
+    private bool SortAscending { get; set; } = true; // Az aktuális rendezés iránya
+
+    private void SortByColumn(string column)
+    {
+        if (SortColumn == column)
+        {
+            SortAscending = !SortAscending; // Fordított irányba változtatjuk a rendezés irányát
+        }
+        else
+        {
+            SortColumn = column;
+            SortAscending = true; // Alapértelmezetten növekvő sorrendbe rendezzük
+        }
+
+        // Adatok rendezése
+        switch (SortColumn)
+        {
+            case "UgyfelNeve":
+                if (SortAscending)
+                {
+                    Munkak = Munkak.OrderBy(munka => munka.UgyfelNeve).ToList();
+                }
+                else
+                {
+                    Munkak = Munkak.OrderByDescending(munka => munka.UgyfelNeve).ToList();
+                }
+                break;
+            case "AutoTipusRendszam":
+                if (SortAscending)
+                {
+                    Munkak = Munkak.OrderBy(munka => munka.AutoTipusRendszam).ToList();
+                }
+                else
+                {
+                    Munkak = Munkak.OrderByDescending(munka => munka.AutoTipusRendszam).ToList();
+                }
+                break;
+            // További oszlopok rendezése
+            // case "ColumnName":
+            //     if (SortAscending)
+            //     {
+            //         Munkak = Munkak.OrderBy(munka => munka.ColumnName).ToList();
+            //     }
+            //     else
+            //     {
+            //         Munkak = Munkak.OrderByDescending(munka => munka.ColumnName).ToList();
+            //     }
+            //     break;
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -190,6 +241,7 @@ else
         Console.WriteLine($"Módosított munka: {munka.UgyfelNeve}, {munka.AutoTipusRendszam}, stb.");
     }
 }
+
 
 
 ------------------------------------------------------------------------------------------------------------------------
