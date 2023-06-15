@@ -7,7 +7,7 @@
 
 <h3>MunkaClient</h3>
 
-<button class="btn btn-secondary" @onclick="AdatokAdatbazisbol">Adatok lekérése</button>
+<button class="btn btn-secondary" @onclick="LoadData">Adatok lekérése</button>
 
 <div class="row">
     <div class="col-md-6 mb-3">
@@ -36,10 +36,23 @@
 
 <div class="row">
     <div class="col-md-6 mb-3">
-        <input type="text" class="form-control" placeholder="Keresés" @bind="@SearchText" />
+        <label for="searchColumn">Keresési oszlop:</label>
+        <select class="form-control" id="searchColumn" @bind="searchColumn">
+            <option value="UgyfelNeve" selected>Ügyfél neve</option>
+            <option value="Tipus">Autó típusa</option>
+            <option value="Rendszam">Autó rendszáma</option>
+            <option value="GyartasiEv">Gyártási év</option>
+            <option value="MunkaKategoria">Munka kategória</option>
+            <option value="HibaLeiras">Hiba leírása</option>
+            <option value="HibaSulyossaga">Hiba súlyossága</option>
+            <option value="MunkaOra">Munka óra</option>
+            <option value="MunkaAllapota">Munka állapota</option>
+        </select>
+        <input type="text" class="form-control" placeholder="Keresés" @bind="searchText" />
+        <button class="btn btn-secondary" @onclick="SearchColumn">Keresés</button>
     </div>
     <div class="col-md-6 mb-3">
-        <button class="btn btn-primary" @onclick="Frissites">Frissítés</button>
+        <button class="btn btn-primary" @onclick="UpdateList">Frissítés</button>
     </div>
 </div>
 
@@ -104,7 +117,7 @@
 }
 else
 {
-    <p>Loading...</p>
+    <p>Betöltés...</p>
 }
 
 @code {
@@ -112,6 +125,8 @@ else
     private string SortColumn { get; set; }
     private string SearchText { get; set; }
     private string SortAscending { get; set; }
+    public string searchColumn { get; set; }
+    public string searchText { get; set; }
 
     private void SortByColumn()
     {
@@ -130,18 +145,12 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        await Frissites();
+        await LoadData();
     }
 
-    protected async Task AdatokAdatbazisbol()
+    private async Task LoadData()
     {
-        Munkak = await HttpClient.GetFromJsonAsync<IEnumerable<Munka>>("http://localhost:5248/Database");
-    }
-
-    protected async Task Frissites()
-    {
-        string encodedSearchText = System.Net.WebUtility.UrlEncode(SearchText);
-        Munkak = await HttpClient.GetFromJsonAsync<IEnumerable<Munka>>($"http://localhost:5248/Database?sortColumn={SortColumn}&sortDirection={SortAscending}&searchText={encodedSearchText}");
+        Munkak = await HttpClient.GetFromJsonAsync<List<Munka>>("http://localhost:5248/Database");
     }
 
     protected async Task AllapotValtoztatas(int munkaId, string ujAllapot)
@@ -152,5 +161,16 @@ else
             munka.MunkaAllapota = ujAllapot;
             await HttpClient.PutAsJsonAsync($"http://localhost:5248/Database/{munkaId}", munka);
         }
+    }
+    private void SearchColumn()
+    {
+        if (Munkak != null && !string.IsNullOrEmpty(searchText))
+        {
+            Munkak = Munkak.Where(munka => munka?.GetType().GetProperty(searchColumn)?.GetValue(munka)?.ToString() == searchText).ToList();
+        }
+    }
+    private async Task UpdateList()
+    {
+        await LoadData();
     }
 }
