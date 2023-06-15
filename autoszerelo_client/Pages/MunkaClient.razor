@@ -76,17 +76,21 @@
                     <td>
                         @if (adott_munka.MunkaAllapota == "Felvett munka")
                         {
-                            <span>Felvett munka</span>
-                            <button class="btn btn-primary" @onclick='(() => AllapotValtoztatas(adott_munka.Id, "Elvégzés alatt"))'>Elvégzés alatt</button>
+                            <div>
+                                <span>Felvett munka</span>
+                                <button class="btn btn-primary" @onclick='(() => AllapotValtoztatas(adott_munka.Id, "Elvégzés alatt"))'>Elvégzés alatt</button>
+                            </div>
                         }
                         else if (adott_munka.MunkaAllapota == "Elvégzés alatt")
                         {
-                            <span>Elvégzés alatt</span>
-                            <button class="btn btn-primary" @onclick='(() => AllapotValtoztatas(adott_munka.Id, "Befejezett"))'>Befejezett</button>
+                            <div>
+                                <span>Elvégzés alatt</span>
+                                <button class="btn btn-primary" @onclick='(() => AllapotValtoztatas(adott_munka.Id, "Befejezett"))'>Befejezett</button>
+                            </div>
                         }
                         else if (adott_munka.MunkaAllapota == "Befejezett")
                         {
-                            <span>Befejezettt</span>
+                            <span>Befejezett</span>
                         }
                         else
                         {
@@ -136,7 +140,8 @@ else
 
     protected async Task Frissites()
     {
-        Munkak = await HttpClient.GetFromJsonAsync<IEnumerable<Munka>>($"http://localhost:5248/Database?sortColumn={SortColumn}&sortDirection={SortAscending}&searchText={SearchText}");
+        string encodedSearchText = System.Net.WebUtility.UrlEncode(SearchText);
+        Munkak = await HttpClient.GetFromJsonAsync<IEnumerable<Munka>>($"http://localhost:5248/Database?sortColumn={SortColumn}&sortDirection={SortAscending}&searchText={encodedSearchText}");
     }
 
     protected async Task AllapotValtoztatas(int munkaId, string ujAllapot)
