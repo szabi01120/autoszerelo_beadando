@@ -87,6 +87,28 @@ else
             <button class="btn btn-secondary" @onclick="SortByColumn">Rendezés</button>
         </div>
     </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label for="searchColumn">Rendezési oszlop:</label>
+            <select class="form-control" id="searchColumn" @bind="searchColumn">
+                <option value="UgyfelNeve" selected>Ügyfél neve</option>
+                <option value="Tipus">Autó típusa</option>
+                <option value="Rendszam">Autó rendszáma</option>
+                <option value="GyartasiEv">Gyártási év</option>
+                <option value="MunkaKategoria">Munka kategória</option>
+                <option value="HibaLeiras">Hiba leírása</option>
+                <option value="HibaSulyossaga">Hiba súlyossága</option>
+                <option value="MunkaOra">Munka óra</option>
+                <option value="MunkaAllapota">Munka állapota</option>
+            </select>
+            <input type="text" class="form-control" placeholder="Keresés" @bind="searchText"/>
+            <button class="btn btn-secondary" @onclick="SearchColumn">Rendezés</button>
+        </div>
+        <div class="col-md-6 mb-3">
+            <button class="btn btn-primary" @onclick="UpdateList">Frissítés</button>
+        </div>
+    </div>
     <table class="table table-light">
         <thead>
             <tr>
@@ -134,7 +156,8 @@ else
     private List<Munka> Munkak { get; set; }
     private string SortColumn { get; set; }
     private string SortAscending {get; set; }
-
+    public string searchColumn { get; set; }
+    public string searchText { get; set; }
     private void SortByColumn()
     {
         if (Munkak != null && !string.IsNullOrEmpty(SortColumn))
@@ -184,5 +207,16 @@ else
         // Pl. megnyit egy űrlapot vagy navigál egy új oldalra a módosításhoz
         // Itt csak kiírjuk a konzolra, hogy módosítás történt
         Console.WriteLine($"Módosított munka: {munka.UgyfelNeve}, {munka.Tipus}, stb.");
+    }
+    private void SearchColumn()
+    {
+        if (Munkak != null && !string.IsNullOrEmpty(searchText))
+        {
+            Munkak = Munkak.Where(munka => munka?.GetType().GetProperty(searchColumn)?.GetValue(munka)?.ToString() == searchText).ToList();
+        }
+    }
+    private async Task UpdateList()
+    {
+        await LoadData();
     }
 }
