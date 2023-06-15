@@ -74,8 +74,13 @@ namespace autoszerelo_szerver.Controllers
 
             var letezo_munka = await _dbContext.Munkak.FindAsync(id);
 
-            //TOBBI ATTRIBUTUM FELULIRASA...
+            letezo_munka.UgyfelNeve = munka.UgyfelNeve;
+            letezo_munka.Tipus = munka.Tipus;
+            letezo_munka.Rendszam = munka.Rendszam;
+            letezo_munka.GyartasiEv = munka.GyartasiEv;
+            letezo_munka.MunkaKategoria = munka.MunkaKategoria;
             letezo_munka.HibaLeiras = munka.HibaLeiras;
+            letezo_munka.HibaSulyossaga = munka.HibaSulyossaga;
 
             await _dbContext.SaveChangesAsync();
 

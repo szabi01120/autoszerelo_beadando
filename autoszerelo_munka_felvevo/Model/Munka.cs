@@ -35,5 +35,9 @@ namespace autoszerelo_munka_felvevo.Model
         [Required(ErrorMessage = "A hiba súlyossága kötelező.")]
         [Range(1, 10, ErrorMessage = "A hiba súlyossága 1 és 10 közötti szám lehet.")]
         public int HibaSulyossaga { get; set; }
+        public double MunkaOra { get; set; }
+
+        [RegularExpression(@"^(Felvett munka|Elvégzés alatt|Befejezett)$", ErrorMessage = "Érvénytelen munka állapot.")]
+        public string MunkaAllapota { get; set; }
     }
 }
