@@ -26,10 +26,11 @@
     </div>
     <div class="col-md-6 mb-3">
         <label for="sortDirection">Rendezési irány:</label>
-        <select class="form-control" id="sortDirection" @bind="@SortDirection">
+        <select class="form-control" id="sortDirection" @bind="@SortAscending">
             <option value="Ascending">Növekvő</option>
             <option value="Descending">Csökkenő</option>
         </select>
+        <button class="btn btn-secondary" @onclick=SortByColumn>Rendezés</button>
     </div>
 </div>
 
@@ -105,8 +106,23 @@ else
 @code {
     private IEnumerable<Munka>? Munkak { get; set; }
     private string SortColumn { get; set; }
-    private string SortDirection { get; set; }
     private string SearchText { get; set; }
+    private string SortAscending { get; set; }
+
+    private void SortByColumn()
+    {
+        if (Munkak != null && !string.IsNullOrEmpty(SortColumn))
+        {
+            if (SortAscending.Equals("Ascending"))
+            {
+                Munkak = Munkak.OrderBy(munka => munka?.GetType().GetProperty(SortColumn)?.GetValue(munka)).ToList();
+            }
+            else
+            {
+                Munkak = Munkak.OrderByDescending(munka => munka?.GetType().GetProperty(SortColumn)?.GetValue(munka)).ToList();
+            }
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -120,7 +136,7 @@ else
 
     protected async Task Frissites()
     {
-        Munkak = await HttpClient.GetFromJsonAsync<IEnumerable<Munka>>($"http://localhost:5248/Database?sortColumn={SortColumn}&sortDirection={SortDirection}&searchText={SearchText}");
+        Munkak = await HttpClient.GetFromJsonAsync<IEnumerable<Munka>>($"http://localhost:5248/Database?sortColumn={SortColumn}&sortDirection={SortAscending}&searchText={SearchText}");
     }
 
     protected async Task AllapotValtoztatas(int munkaId, string ujAllapot)
