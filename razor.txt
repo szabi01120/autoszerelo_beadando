@@ -1,15 +1,12 @@
-// client
+// autoszerelo_munka_felvevo
 
-//munka.cs
+// Munka.cs
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace autoszerelo_munka_client.Model
+namespace autoszerelo_munka_felvevo.Model
 {
     public class Munka
     {
-        public int Id { get; set; }
-
         [Required(ErrorMessage = "Ügyfél neve kötelező.")]
         [RegularExpression(@"^[^\s!?_\-:;#]+$", ErrorMessage = "Ügyfél név nem lehet üres és nem tartalmazhat speciális karaktereket.")]
         public string UgyfelNeve { get; set; }
@@ -32,23 +29,71 @@ namespace autoszerelo_munka_client.Model
         [Required(ErrorMessage = "A hiba súlyossága kötelező.")]
         [Range(1, 10, ErrorMessage = "A hiba súlyossága 1 és 10 közötti szám lehet.")]
         public int HibaSulyossaga { get; set; }
-
-        public string Allapot { get; set; }
     }
 }
 
 
-
-//munkaclient.razor
-@page "/munkaclient"
-@using autoszerelo_munka_client.Model
+// Munkafelvetel.razor
+@page "/munkafelvetel"
+@using autoszerelo_munka_felvevo.Model
+@using System.ComponentModel.DataAnnotations
+@using System.Linq
+@using System.Collections.Generic
+@using System.Net.Http.Json;
 @inject HttpClient HttpClient
 
-<PageTitle>Autoszerelo_Kliens</PageTitle>
+<PageTitle>Munkafelvétel</PageTitle>
 
-<h3>Autószerelő Kliens</h3>
-<button class="btn btn-secondary" @onclick="LoadData">Adatok lekérése</button>
+<h3>Munkafelvétel</h3>
 
+@if (!IsSubmitted)
+{
+    <form>
+        <div class="form-group">
+            <label>Ügyfél neve:</label>
+            <input class="form-control" @bind="@UjMunka.UgyfelNeve" />
+            <ValidationMessage For="@(() => UjMunka.UgyfelNeve)" />
+        </div>
+        <div class="form-group">
+            <label>Autó típusa és rendszáma:</label>
+            <input class="form-control" @bind="@UjMunka.AutoTipusRendszam" />
+            <ValidationMessage For="@(() => UjMunka.AutoTipusRendszam)" />
+        </div>
+        <div class="form-group">
+            <label>Gyártási év:</label>
+            <input class="form-control" type="number" @bind="@UjMunka.GyartasiEv" />
+            <ValidationMessage For="@(() => UjMunka.GyartasiEv)" />
+        </div>
+        <div class="form-group">
+            <label>Munka kategória:</label>
+            <select class="form-control" @bind="@UjMunka.MunkaKategoria">
+                <option value="">Válasszon</option>
+                <option value="Karosszéria">Karosszéria</option>
+                <option value="motor">Motor</option>
+                <option value="futómű">Futómű</option>
+                <option value="fékberendezés">Fékberendezés</option>
+            </select>
+            <ValidationMessage For="@(() => UjMunka.MunkaKategoria)" />
+        </div>
+        <div class="form-group">
+            <label>Az autó hibájának leírása:</label>
+            <input class="form-control" @bind="@UjMunka.HibaLeiras" />
+            <ValidationMessage For="@(() => UjMunka.HibaLeiras)" />
+        </div>
+        <div class="form-group">
+            <label>A hiba súlyossága (1-10):</label>
+            <input class="form-control" type="number" min="1" max="10" @bind="@UjMunka.HibaSulyossaga" />
+            <ValidationMessage For="@(() => UjMunka.HibaSulyossaga)" />
+        </div>
+        <button class="btn btn-primary" @onclick="SubmitForm">Munka felvétele</button>
+    </form>
+}
+else
+{
+    <p>Munka sikeresen felvéve.</p>
+}
+
+<h3>Meglévő munkák</h3>
 @if (Munkak != null)
 {
     <table class="table table-light">
@@ -58,9 +103,9 @@ namespace autoszerelo_munka_client.Model
                 <th>Autó típusa és rendszáma</th>
                 <th>Gyártási év</th>
                 <th>Munka kategória</th>
-                <th>Hiba rövid leírása</th>
-                <th>Hiba súlyossága</th>
-                <th>Állapot</th>
+                <th>Az autó hibájának leírása</th>
+                <th>A hiba súlyossága</th>
+                <th>Munkaóra esztimáció</th>
                 <th>Műveletek</th>
             </tr>
         </thead>
@@ -74,16 +119,10 @@ namespace autoszerelo_munka_client.Model
                     <td>@munka.MunkaKategoria</td>
                     <td>@munka.HibaLeiras</td>
                     <td>@munka.HibaSulyossaga</td>
-                    <td>@munka.Allapot</td>
+                    <td>@EstimateWorkHours(munka)</td>
                     <td>
-                        @if (munka.Allapot == "Felvett munka")
-                        {
-                            <button class="btn btn-success" @onclick="(() => ChangeStatus(munka, "Elvégzés alatt"))">Elvégzés alatt</button>
-                        }
-                        else if (munka.Allapot == "Elvégzés alatt")
-                        {
-                            <button class="btn btn-primary" @onclick="(() => ChangeStatus(munka, "Befejezett"))">Befejezett</button>
-                        }
+                        <button class="btn btn-secondary" @onclick="() => ViewMunka(munka)">Megtekintés</button>
+                        <button class="btn btn-secondary" @onclick="() => ModifyMunka(munka)">Módosítás</button>
                     </td>
                 </tr>
             }
@@ -96,216 +135,70 @@ else
 }
 
 @code {
+    private Munka UjMunka { get; set; } = new Munka();
+    private bool IsSubmitted { get; set; } = false;
     private List<Munka> Munkak { get; set; }
 
-    protected async Task LoadData()
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
     {
         Munkak = await HttpClient.GetFromJsonAsync<List<Munka>>("http://localhost:5248/Database");
     }
 
-    protected async Task ChangeStatus(Munka munka, string newStatus)
+
+
+    private async Task SubmitForm()
     {
-        munka.Allapot = newStatus;
-        await HttpClient.PutAsJsonAsync($"http://localhost:5248/Database/{munka.Id}", munka);
+        var validationContext = new ValidationContext(UjMunka);
+        var validationResults = new List<ValidationResult>();
+        if (Validator.TryValidateObject(UjMunka, validationContext, validationResults, true))
+        {
+            // Validáció sikeres, elküldhetjük az adatokat a szervertől
+            await HttpClient.PostAsJsonAsync("http://localhost:5248/Database", UjMunka);
+
+            IsSubmitted = true;
+
+            await LoadData(); // Frissítsük az adatokat
+        }
+    }
+
+    private string EstimateWorkHours(Munka munka)
+    {
+        // Az API számolja ki a munkaóra becslést
+        // Példa:
+        // return await HttpClient.GetJsonAsync<string>($"api/munkak/{munka.Id}/workhours");
+        return "4"; // Itt a becslés helyett egyszerűen egy konstans értéket adunk vissza
+    }
+
+    private void ViewMunka(Munka munka)
+    {
+        // Munka megtekintése logika
+        // Pl. megnyit egy modális ablakot vagy navigál egy új oldalra
+        // Itt csak kiírjuk a konzolra a munka adatait
+        Console.WriteLine($"Megtekintett munka: {munka.UgyfelNeve}, {munka.AutoTipusRendszam}, stb.");
+    }
+
+    private void ModifyMunka(Munka munka)
+    {
+        // Munka módosítása logika
+        // Pl. megnyit egy űrlapot vagy navigál egy új oldalra a módosításhoz
+        // Itt csak kiírjuk a konzolra, hogy módosítás történt
+        Console.WriteLine($"Módosított munka: {munka.UgyfelNeve}, {munka.AutoTipusRendszam}, stb.");
     }
 }
 
 
+------------------------------------------------------------------------------------------------------------------------
 
 
+// autoszerelo_client
 
---------------------------------------------------------
-// felvevo
+// Munka.cs
 
-munka.cs
-using System.ComponentModel.DataAnnotations;
 
-namespace autoszerelo_munka_client.Model
-{
-    public class Munka
-    {
-        [Required(ErrorMessage = "Ügyfél neve kötelező.")]
-        [RegularExpression(@"^[^\s!?_\-:;#]+$", ErrorMessage = "Ügyfél név nem lehet üres és nem tartalmazhat speciális karaktereket.")]
-        public string UgyfelNeve { get; set; }
-
-        [Required(ErrorMessage = "Autó típusa és rendszáma kötelező.")]
-        [RegularExpression(@"^(?!.*[\s!?_\-:;#])^[A-Z]{3}-\d{3}$", ErrorMessage = "Autó típusa és rendszáma nem lehet üres és nem tartalmazhat speciális karaktereket. Rendszám formátuma: XXX-000")]
-        public string AutoTipusRendszam { get; set; }
-
-        [Required(ErrorMessage = "Gyártási év kötelező.")]
-        [RegularExpression(@"^\d+$", ErrorMessage = "Gyártási év csak számokat tartalmazhat.")]
-        public int GyartasiEv { get; set; }
-
-        [Required(ErrorMessage = "Munka kategória kötelező.")]
-        [RegularExpression(@"^(Karosszéria|motor|futómű|fékberendezés)$", ErrorMessage = "Érvénytelen munka kategória.")]
-        public string MunkaKategoria { get; set; }
-
-        [Required(ErrorMessage = "Az autó hibájának leírása kötelező.")]
-        public string HibaLeiras { get; set; }
-
-        [Required(ErrorMessage = "A hiba súlyossága kötelező.")]
-        [Range(1, 10, ErrorMessage = "A hiba súlyossága 1 és 10 közötti szám lehet.")]
-        public int HibaSulyossaga { get; set; }
-    }
-}
-
-//munkafelvetel
-@page "/munkaclient"
-@using autoszerelo_munka_client.Model
-@using System.ComponentModel.DataAnnotations;
-@inject HttpClient HttpClient
-
-<PageTitle>Munkafelvétel</PageTitle>
-
-<h3>MunkaFelvevo</h3>
-<button class="btn btn-secondary" @onclick="LoadData">Adatok lekérése</button>
-
-@if (Munkak != null)
-{
-<table class="table table-light">
-<thead>
-<tr>
-<th>Ügyfél neve</th>
-<th>Autó típusa és rendszáma</th>
-<th>Gyártási év</th>
-<th>Munka kategória</th>
-<th>Az autó hibájának leírása</th>
-<th>A hiba súlyossága</th>
-</tr>
-</thead>
-<tbody>
-@foreach (var munka in Munkak)
-{
-<tr>
-<td>@munka.UgyfelNeve</td>
-<td>@munka.AutoTipusRendszam</td>
-<td>@munka.GyartasiEv</td>
-<td>@munka.MunkaKategoria</td>
-<td>@munka.HibaLeiras</td>
-<td>@munka.HibaSulyossaga</td>
-</tr>
-}
-</tbody>
-</table>
-}
-else
-{
-<p>Loading...</p>
-}
-
-<h3>Új ügyfél felvétele</h3>
-<form>
-    <div class="form-group">
-        <label>Ügyfél neve:</label>
-        <input class="form-control" @bind="@UjMunka.UgyfelNeve" />
-    </div>
-    <div class="form-group">
-        <label>Autó típusa és rendszáma:</label>
-        <input class="form-control" @bind="@UjMunka.AutoTipusRendszam" />
-    </div>
-    <div class="form-group">
-        <label>Gyártási év:</label>
-        <input class="form-control" type="number" @bind="@UjMunka.GyartasiEv" />
-    </div>
-    <div class="form-group">
-        <label>Munka kategória:</label>
-        <select class="form-control" @bind="@UjMunka.MunkaKategoria">
-            <option>Karosszéria</option>
-            <option>motor</option>
-            <option>futómű</option>
-            <option>fékberendezés</option>
-        </select>
-    </div>
-    <div class="form-group">
-        <label>Az autó hibájának leírása:</label>
-        <textarea class="form-control" @bind="@UjMunka.HibaLeiras"></textarea>
-    </div>
-    <div class="form-group">
-        <label>A hiba súlyossága (1-10):</label>
-        <input class="form-control" type="number" min="1" max="10" @bind="@UjMunka.HibaSulyossaga" />
-    </div>
-    <button class="btn btn-primary" @onclick="AddNewMunka">Felvétel</button>
-</form>
-@code {
-private List<Munka> Munkak { get; set; }
-private Munka UjMunka { get; set; } = new Munka();
-protected async Task LoadData()
-{
-    Munkak = await HttpClient.GetFromJsonAsync<List<Munka>>("http://localhost:5248/Database");
-}
-
-protected async Task AddNewMunka()
-{
-    // Validáció ellenőrzése
-    if (ValidateMunka(UjMunka))
-    {
-        // Új ügyfél hozzáadása a listához vagy adatbázishoz
-        Munkak.Add(UjMunka);
-
-        // Üres mezők visszaállítása
-        UjMunka = new Munka();
-    }
-}
-
-private bool ValidateMunka(Munka munka)
-{
-    // Validáció ellenőrzése a Munka osztály attribútumain
-    var validationContext = new System.ComponentModel.DataAnnotations.ValidationContext(munka);
-    var validationResults = new List<System.ComponentModel.DataAnnotations.ValidationResult>();
-    bool isValid = Validator.TryValidateObject(munka, validationContext, validationResults, true);
-
-    return isValid;
-}
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+// MunkaClient.razor
 
