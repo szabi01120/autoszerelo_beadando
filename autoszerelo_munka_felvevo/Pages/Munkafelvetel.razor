@@ -1,3 +1,4 @@
+@page "/"
 @page "/munkafelvetel"
 @using autoszerelo_munka_felvevo.Model
 @using System.ComponentModel.DataAnnotations
@@ -69,12 +70,14 @@ else
         <thead>
             <tr>
                 <th>Ügyfél neve</th>
-                <th>Autó típusa és rendszáma</th>
+                <th>Autó típusa</th>
+                <th>Autó rendszáma</th>
                 <th>Gyártási év</th>
                 <th>Munka kategória</th>
                 <th>Az autó hibájának leírása</th>
                 <th>A hiba súlyossága</th>
                 <th>Munkaóra esztimáció</th>
+                <th>Munka állapota</th>
                 <th>Műveletek</th>
             </tr>
         </thead>
@@ -89,7 +92,8 @@ else
                     <td>@munka.MunkaKategoria</td>
                     <td>@munka.HibaLeiras</td>
                     <td>@munka.HibaSulyossaga</td>
-                    <td>@EstimateWorkHours(munka)</td>
+                    <td>@munka.MunkaOra</td>
+                    <td>@munka.MunkaAllapota</td>
                     <td>
                         <button class="btn btn-secondary" @onclick="() => ViewMunka(munka)">Megtekintés</button>
                         <button class="btn btn-secondary" @onclick="() => ModifyMunka(munka)">Módosítás</button>
@@ -101,7 +105,7 @@ else
 }
 else
 {
-    <p>Loading...</p>
+    <p>Adatok betöltése...</p>
 }
 
 @code {
@@ -186,14 +190,6 @@ else
 
             await LoadData(); // Frissítsük az adatokat
         }
-    }
-
-    private string EstimateWorkHours(Munka munka)
-    {
-        // Az API számolja ki a munkaóra becslést
-        // Példa:
-        // return await HttpClient.GetJsonAsync<string>($"api/munkak/{munka.Id}/workhours");
-        return "4"; // Itt a becslés helyett egyszerűen egy konstans értéket adunk vissza
     }
 
     private void ViewMunka(Munka munka)
