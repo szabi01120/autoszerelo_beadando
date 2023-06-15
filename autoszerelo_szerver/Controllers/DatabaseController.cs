@@ -70,9 +70,9 @@ namespace autoszerelo_szerver.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(string id, [FromBody] Munka munka)
         {
-            if (int.Parse(id) != munka.Id)
+            if (int.parse(id) != munka.id)
             {
-                return BadRequest();
+                return badrequest();
             }
 
             var letezo_munka = await _dbContext.Munkak.FindAsync(int.Parse(id));
