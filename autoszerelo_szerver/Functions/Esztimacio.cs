@@ -8,24 +8,25 @@ namespace autoszerelo_szerver.Functions
         public static double MunkaEsztimacio(Munka akt_munka)
         {
             double szamitott_ora;
-            int kategoria = 0;
-            double kor = 0, sulyossag = 0;
+            int kategoria;
+            double kor, sulyossag;
             int eletkor = DateTime.Today.Year - akt_munka.GyartasiEv;
 
-            switch (akt_munka.MunkaKategoria)
+            if (akt_munka.MunkaKategoria.Equals("Karosszéria"))
             {
-                case "Karosszéria":
-                    kategoria = 3;
-                    break;
-                case "Motor":
-                    kategoria = 8;
-                    break;
-                case "Futómű":
-                    kategoria = 6;
-                    break;
-                case "Fékberendezés":
-                    kategoria = 4;
-                    break;
+                kategoria = 3;
+            }
+            else if (akt_munka.MunkaKategoria.Equals("motor"))
+            {
+                kategoria = 8;
+            }
+            else if (akt_munka.MunkaKategoria.Equals("futómű"))
+            {
+                kategoria = 6;
+            }
+            else
+            {
+                kategoria = 4;
             }
 
             if (eletkor <= 5)
@@ -67,7 +68,7 @@ namespace autoszerelo_szerver.Functions
             }
 
             szamitott_ora = kategoria * kor * sulyossag;
-            return szamitott_ora;
+            return Math.Round(szamitott_ora, 2);
         }
     }
 }
