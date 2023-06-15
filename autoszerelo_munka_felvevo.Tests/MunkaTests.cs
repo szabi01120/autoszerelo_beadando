@@ -11,7 +11,7 @@ namespace autoszerelo_munka_felvevo.Tests
         [TestMethod]
         public void TestCustomerNameValidation()
         {
-            string customerName = "John Doe";
+            string customerName = "Alma Panna";
             bool isValid = ValidateCustomerName(customerName);
             Assert.IsTrue(isValid);
         }
@@ -27,7 +27,7 @@ namespace autoszerelo_munka_felvevo.Tests
         [TestMethod]
         public void TestCarTypeValidation()
         {
-            string carType = "Sedan";
+            string carType = "Merci";
             bool isValid = ValidateCarType(carType);
             Assert.IsTrue(isValid);
         }

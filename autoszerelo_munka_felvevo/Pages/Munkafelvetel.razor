@@ -174,11 +174,11 @@ else
 
     private async Task SubmitForm()
     {
-        UjMunka.MunkaAllapota = "Felvett munka";
         var validationContext = new ValidationContext(UjMunka);
         var validationResults = new List<ValidationResult>();
         if (Validator.TryValidateObject(UjMunka, validationContext, validationResults, true))
         {
+            UjMunka.MunkaAllapota = "Felvett munka";
             // Validáció sikeres, elküldhetjük az adatokat a szervertől
             await HttpClient.PostAsJsonAsync("http://localhost:5248/Database", UjMunka);
 

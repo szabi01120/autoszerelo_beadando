@@ -1,9 +1,45 @@
 ﻿@page "/munkaclient"
 @using autoszerelo_munka_client.Model
 @inject HttpClient HttpClient
+
+<PageTitle>Munkakliens</PageTitle>
+
 <h3>MunkaClient</h3>
 
 <button class="btn btn-secondary" @onclick="AdatokAdatbazisbol">Adatok lekérése</button>
+
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <label for="sortColumn">Rendezési oszlop:</label>
+        <select class="form-control" id="sortColumn" @bind="@SortColumn">
+            <option value="UgyfelNeve">Ügyfél neve</option>
+            <option value="Tipus">Autó típusa</option>
+            <option value="Rendszam">Autó rendszáma</option>
+            <option value="GyartasiEv">Gyártási év</option>
+            <option value="MunkaKategoria">Munka kategória</option>
+            <option value="HibaLeiras">Hiba leírása</option>
+            <option value="HibaSulyossaga">Hiba súlyossága</option>
+            <option value="MunkaOra">Munka óra</option>
+            <option value="MunkaAllapota">Munka állapota</option>
+        </select>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label for="sortDirection">Rendezési irány:</label>
+        <select class="form-control" id="sortDirection" @bind="@SortDirection">
+            <option value="Ascending">Növekvő</option>
+            <option value="Descending">Csökkenő</option>
+        </select>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <input type="text" class="form-control" placeholder="Keresés" @bind="@SearchText" />
+    </div>
+    <div class="col-md-6 mb-3">
+        <button class="btn btn-primary" @onclick="Frissites">Frissítés</button>
+    </div>
+</div>
 
 @if (Munkak != null)
 {
@@ -11,17 +47,45 @@
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Name</th>
-                <th>Description</th>
+                <th>Ügyfél neve</th>
+                <th>Autó típusa</th>
+                <th>Autó rendszáma</th>
+                <th>Gyártási év</th>
+                <th>Munka kategória</th>
+                <th>Hiba leírása</th>
+                <th>Hiba súlyossága</th>
+                <th>Munka óra</th>
+                <th>Munka állapota</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var adott_munka in Munkak)
             {
                 <tr>
+                    <td>@adott_munka.Id</td>
                     <td>@adott_munka.UgyfelNeve</td>
-                    <td>@adott_munka.HibaLeiras</td>
+                    <td>@adott_munka.Tipus</td>
                     <td>@adott_munka.Rendszam</td>
+                    <td>@adott_munka.GyartasiEv</td>
+                    <td>@adott_munka.MunkaKategoria</td>
+                    <td>@adott_munka.HibaLeiras</td>
+                    <td>@adott_munka.HibaSulyossaga</td>
+                    <td>@adott_munka.MunkaOra</td>
+                    <td>
+                        @if (adott_munka.MunkaAllapota == "Felvett munka")
+                        {
+                            <button class="btn btn-primary" @onclick='(() => AllapotValtoztatas(adott_munka.Id, "Elvégzés alatt"))'>Elvégzés alatt</button>
+
+                        }
+                        else if (adott_munka.MunkaAllapota == "Elvégzés alatt")
+                        {
+                            <button class="btn btn-primary" @onclick='(() => AllapotValtoztatas(adott_munka.Id, "Befejezett"))'>Befejezett</button>
+                        }
+                        else
+                        {
+                            <span>@adott_munka.MunkaAllapota</span>
+                        }
+                    </td>
                 </tr>
             }
         </tbody>
@@ -32,12 +96,34 @@ else
     <p>Loading...</p>
 }
 
-
 @code {
     private IEnumerable<Munka>? Munkak { get; set; }
+    private string SortColumn { get; set; }
+    private string SortDirection { get; set; }
+    private string SearchText { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Frissites();
+    }
 
     protected async Task AdatokAdatbazisbol()
     {
         Munkak = await HttpClient.GetFromJsonAsync<IEnumerable<Munka>>("http://localhost:5248/Database");
+    }
+
+    protected async Task Frissites()
+    {
+        Munkak = await HttpClient.GetFromJsonAsync<IEnumerable<Munka>>($"http://localhost:5248/Database?sortColumn={SortColumn}&sortDirection={SortDirection}&searchText={SearchText}");
+    }
+
+    protected async Task AllapotValtoztatas(int munkaId, string ujAllapot)
+    {
+        var munka = Munkak.FirstOrDefault(m => m.Id == munkaId);
+        if (munka != null)
+        {
+            munka.MunkaAllapota = ujAllapot;
+            await HttpClient.PutAsJsonAsync($"http://localhost:5248/Database/{munkaId}", munka);
+        }
     }
 }
