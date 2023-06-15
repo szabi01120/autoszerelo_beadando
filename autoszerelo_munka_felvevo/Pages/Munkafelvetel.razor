@@ -66,6 +66,27 @@ else
 <h3>Meglévő munkák</h3>
 @if (Munkak != null)
 {
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label for="sortColumn">Rendezési oszlop:</label>
+            <select class="form-control" id="sortColumn" @bind="SortColumn">
+                <option value="UgyfelNeve" selected>Ügyfél neve</option>
+                <option value="Tipus">Autó típusa</option>
+                <option value="Rendszam">Autó rendszáma</option>
+                <option value="GyartasiEv">Gyártási év</option>
+                <option value="MunkaKategoria">Munka kategória</option>
+                <option value="HibaLeiras">Hiba leírása</option>
+                <option value="HibaSulyossaga">Hiba súlyossága</option>
+                <option value="MunkaOra">Munka óra</option>
+                <option value="MunkaAllapota">Munka állapota</option>
+            </select>
+            <select class="form-control" id="order" @bind=SortAscending>
+                <option value="Ascending" selected>Növekvő</option>
+                <option value="Descending">Csökkenő</option>
+            </select>
+            <button class="btn btn-secondary" @onclick="SortByColumn">Rendezés</button>
+        </div>
+    </div>
     <table class="table table-light">
         <thead>
             <tr>
@@ -95,7 +116,6 @@ else
                     <td>@munka.MunkaOra</td>
                     <td>@munka.MunkaAllapota</td>
                     <td>
-                        <button class="btn btn-secondary" @onclick="() => ViewMunka(munka)">Megtekintés</button>
                         <button class="btn btn-secondary" @onclick="() => ModifyMunka(munka)">Módosítás</button>
                     </td>
                 </tr>
@@ -112,55 +132,21 @@ else
     private Munka UjMunka { get; set; } = new Munka();
     private bool IsSubmitted { get; set; } = false;
     private List<Munka> Munkak { get; set; }
-    private string SortColumn { get; set; } // Az aktuálisan kiválasztott rendezés oszlopa
-    private bool SortAscending { get; set; } = true; // Az aktuális rendezés iránya
+    private string SortColumn { get; set; }
+    private string SortAscending {get; set; }
 
-    private void SortByColumn(string column)
+    private void SortByColumn()
     {
-        if (SortColumn == column)
+        if (Munkak != null && !string.IsNullOrEmpty(SortColumn))
         {
-            SortAscending = !SortAscending; // Fordított irányba változtatjuk a rendezés irányát
-        }
-        else
-        {
-            SortColumn = column;
-            SortAscending = true; // Alapértelmezetten növekvő sorrendbe rendezzük
-        }
-
-        // Adatok rendezése
-        switch (SortColumn)
-        {
-            case "UgyfelNeve":
-                if (SortAscending)
-                {
-                    Munkak = Munkak.OrderBy(munka => munka.UgyfelNeve).ToList();
-                }
-                else
-                {
-                    Munkak = Munkak.OrderByDescending(munka => munka.UgyfelNeve).ToList();
-                }
-                break;
-                //case "AutoTipusRendszam":
-                //    if (SortAscending)
-                //    {
-                //        Munkak = Munkak.OrderBy(munka => munka.AutoTipusRendszam).ToList();
-                //    }
-                //    else
-                //    {
-                //        Munkak = Munkak.OrderByDescending(munka => munka.AutoTipusRendszam).ToList();
-                //    }
-                //    break;
-                // További oszlopok rendezése
-                // case "ColumnName":
-                //     if (SortAscending)
-                //     {
-                //         Munkak = Munkak.OrderBy(munka => munka.ColumnName).ToList();
-                //     }
-                //     else
-                //     {
-                //         Munkak = Munkak.OrderByDescending(munka => munka.ColumnName).ToList();
-                //     }
-                //     break;
+            if (SortAscending.Equals("Ascending"))
+            {
+                Munkak = Munkak.OrderBy(munka => munka?.GetType().GetProperty(SortColumn)?.GetValue(munka)).ToList();
+            }
+            else
+            {
+                Munkak = Munkak.OrderByDescending(munka => munka?.GetType().GetProperty(SortColumn)?.GetValue(munka)).ToList();
+            }
         }
     }
 
@@ -190,14 +176,6 @@ else
 
             await LoadData(); // Frissítsük az adatokat
         }
-    }
-
-    private void ViewMunka(Munka munka)
-    {
-        // Munka megtekintése logika
-        // Pl. megnyit egy modális ablakot vagy navigál egy új oldalra
-        // Itt csak kiírjuk a konzolra a munka adatait
-        Console.WriteLine($"Megtekintett munka: {munka.UgyfelNeve}, {munka.Tipus}, stb.");
     }
 
     private void ModifyMunka(Munka munka)
