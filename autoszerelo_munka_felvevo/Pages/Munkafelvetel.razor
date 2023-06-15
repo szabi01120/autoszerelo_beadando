@@ -12,16 +12,21 @@
 
 @if (!IsSubmitted)
 {
-    <form>
+    <EditForm Model="@UjMunka">
         <div class="form-group">
             <label>Ügyfél neve:</label>
             <input class="form-control" @bind="@UjMunka.UgyfelNeve" />
             <ValidationMessage For="@(() => UjMunka.UgyfelNeve)" />
         </div>
         <div class="form-group">
-            <label>Autó típusa és rendszáma:</label>
-            <input class="form-control" @bind="@UjMunka.AutoTipusRendszam" />
-            <ValidationMessage For="@(() => UjMunka.AutoTipusRendszam)" />
+            <label>Autó rendszáma:</label>
+            <input class="form-control" @bind="@UjMunka.Tipus" />
+            <ValidationMessage For="@(() => UjMunka.Tipus)" />
+        </div>
+        <div class="form-group">
+            <label>Autó rendszáma:</label>
+            <input class="form-control" @bind="@UjMunka.Rendszam" />
+            <ValidationMessage For="@(() => UjMunka.Rendszam)" />
         </div>
         <div class="form-group">
             <label>Gyártási év:</label>
@@ -50,7 +55,7 @@
             <ValidationMessage For="@(() => UjMunka.HibaSulyossaga)" />
         </div>
         <button class="btn btn-primary" @onclick="SubmitForm">Munka felvétele</button>
-    </form>
+    </EditForm>
 }
 else
 {
@@ -78,7 +83,8 @@ else
             {
                 <tr>
                     <td>@munka.UgyfelNeve</td>
-                    <td>@munka.AutoTipusRendszam</td>
+                    <td>@munka.Tipus</td>
+                    <td>@munka.Rendszam</td>
                     <td>@munka.GyartasiEv</td>
                     <td>@munka.MunkaKategoria</td>
                     <td>@munka.HibaLeiras</td>
@@ -130,16 +136,16 @@ else
                     Munkak = Munkak.OrderByDescending(munka => munka.UgyfelNeve).ToList();
                 }
                 break;
-            case "AutoTipusRendszam":
-                if (SortAscending)
-                {
-                    Munkak = Munkak.OrderBy(munka => munka.AutoTipusRendszam).ToList();
-                }
-                else
-                {
-                    Munkak = Munkak.OrderByDescending(munka => munka.AutoTipusRendszam).ToList();
-                }
-                break;
+            //case "AutoTipusRendszam":
+            //    if (SortAscending)
+            //    {
+            //        Munkak = Munkak.OrderBy(munka => munka.AutoTipusRendszam).ToList();
+            //    }
+            //    else
+            //    {
+            //        Munkak = Munkak.OrderByDescending(munka => munka.AutoTipusRendszam).ToList();
+            //    }
+            //    break;
             // További oszlopok rendezése
             // case "ColumnName":
             //     if (SortAscending)
@@ -194,7 +200,7 @@ else
         // Munka megtekintése logika
         // Pl. megnyit egy modális ablakot vagy navigál egy új oldalra
         // Itt csak kiírjuk a konzolra a munka adatait
-        Console.WriteLine($"Megtekintett munka: {munka.UgyfelNeve}, {munka.AutoTipusRendszam}, stb.");
+        Console.WriteLine($"Megtekintett munka: {munka.UgyfelNeve}, {munka.Tipus}, stb.");
     }
 
     private void ModifyMunka(Munka munka)
@@ -202,6 +208,6 @@ else
         // Munka módosítása logika
         // Pl. megnyit egy űrlapot vagy navigál egy új oldalra a módosításhoz
         // Itt csak kiírjuk a konzolra, hogy módosítás történt
-        Console.WriteLine($"Módosított munka: {munka.UgyfelNeve}, {munka.AutoTipusRendszam}, stb.");
+        Console.WriteLine($"Módosított munka: {munka.UgyfelNeve}, {munka.Tipus}, stb.");
     }
 }

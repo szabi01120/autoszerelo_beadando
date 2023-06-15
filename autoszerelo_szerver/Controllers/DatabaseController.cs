@@ -67,7 +67,7 @@ namespace autoszerelo_szerver.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(string id, [FromBody] Munka munka)
         {
-            if (id != munka.Nev)
+            if (id != munka.UgyfelNeve)
             {
                 return BadRequest();
             }
@@ -75,7 +75,7 @@ namespace autoszerelo_szerver.Controllers
             var letezo_munka = await _dbContext.Munkak.FindAsync(id);
 
             //TOBBI ATTRIBUTUM FELULIRASA...
-            letezo_munka.Leiras = munka.Leiras;
+            letezo_munka.HibaLeiras = munka.HibaLeiras;
 
             await _dbContext.SaveChangesAsync();
 
