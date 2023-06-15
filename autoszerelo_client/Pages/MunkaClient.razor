@@ -75,12 +75,17 @@
                     <td>
                         @if (adott_munka.MunkaAllapota == "Felvett munka")
                         {
+                            <span>Felvett munka</span>
                             <button class="btn btn-primary" @onclick='(() => AllapotValtoztatas(adott_munka.Id, "Elvégzés alatt"))'>Elvégzés alatt</button>
-
                         }
                         else if (adott_munka.MunkaAllapota == "Elvégzés alatt")
                         {
+                            <span>Elvégzés alatt</span>
                             <button class="btn btn-primary" @onclick='(() => AllapotValtoztatas(adott_munka.Id, "Befejezett"))'>Befejezett</button>
+                        }
+                        else if (adott_munka.MunkaAllapota == "Befejezett")
+                        {
+                            <span>Befejezettt</span>
                         }
                         else
                         {
