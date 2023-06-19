@@ -49,7 +49,11 @@
             <option value="MunkaAllapota">Munka állapota</option>
         </select>
         <input type="text" class="form-control" placeholder="Keresés" @bind="searchText" />
-        <button class="btn btn-secondary" @onclick="SearchColumn">Keresés</button>
+        @if (string.IsNullOrEmpty(searchText) && MegnyomtaE)
+        {
+            <p class="text-danger">Kérem írjon be valamit a kereséshez!</p>
+        }
+        <button class="btn btn-secondary" @onclick="SearchColumn" id="keresesGomb">Keresés</button>
     </div>
     <div class="col-md-6 mb-3">
         <button class="btn btn-primary" @onclick="UpdateList">Frissítés</button>
@@ -122,14 +126,18 @@ else
 
 @code {
     private IEnumerable<Munka>? Munkak { get; set; }
-    private string SortColumn { get; set; }
-    private string SearchText { get; set; }
-    private string SortAscending { get; set; }
-    public string searchColumn { get; set; }
+    private string SortColumn { get; set; } = "UgyfelNeve"; //Tipp: ahogy látom, ha egyből betölt az oldal, nincs alapértelmezett értéke a SortColumn-nak
+                                                            //private string SearchText { get; set; } //felesleges
+    private string SortAscending { get; set; } = "Ascending";
+    public string searchColumn { get; set; } = "UgyfelNeve"; //Tipp: ahogy látom, ha egyből betölt az oldal, nincs alapértelmezett értéke a searchColumn-nak
     public string searchText { get; set; }
+    public bool MegnyomtaE { get; set; } = false;
 
     private void SortByColumn()
     {
+        Console.WriteLine((Munkak != null).ToString());
+        Console.WriteLine((!string.IsNullOrEmpty(SortColumn)).ToString());
+        Console.WriteLine(searchColumn);
         if (Munkak != null && !string.IsNullOrEmpty(SortColumn))
         {
             if (SortAscending.Equals("Ascending"))
@@ -142,6 +150,7 @@ else
             }
         }
     }
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -164,6 +173,7 @@ else
     }
     private void SearchColumn()
     {
+        MegnyomtaE = true;
         if (Munkak != null && !string.IsNullOrEmpty(searchText))
         {
             Munkak = Munkak.Where(munka => munka?.GetType().GetProperty(searchColumn)?.GetValue(munka)?.ToString() == searchText).ToList();

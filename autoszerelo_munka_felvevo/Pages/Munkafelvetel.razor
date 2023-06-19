@@ -103,6 +103,10 @@ else
                 <option value="MunkaAllapota">Munka állapota</option>
             </select>
             <input type="text" class="form-control" placeholder="Keresés" @bind="searchText"/>
+            @if (string.IsNullOrEmpty(searchText) && MegnyomtaE)
+            {
+                <p class="text-danger">Kérem írjon be valamit a kereséshez!</p>
+            }
             <button class="btn btn-secondary" @onclick="SearchColumn">Keresés</button>
         </div>
         <div class="col-md-6 mb-3">
@@ -174,17 +178,19 @@ else
 @code {
     private Munka UjMunka { get; set; } = new Munka();
     private bool IsSubmitted { get; set; } = false;
-    private List<Munka> Munkak { get; set; }
+    //private List<Munka> Munkak { get; set; }
+    private IEnumerable<Munka>? Munkak { get; set; }
 
-    private string SortColumn { get; set; }
-    private string SortAscending {get; set; }
+    private string SortColumn { get; set; } = "UgyfelNeve";
+    private string SortAscending { get; set; } = "Ascending";
 
-    public string searchColumn { get; set; }
+    public string searchColumn { get; set; } = "UgyfelNeve";
     public string searchText { get; set; }
 
     public bool modositasVan = false;
-    public Munka modositoMunka { get; set; }= new Munka();
+    public Munka modositoMunka { get; set; } = new Munka();
     public int ModositandoMunka { get; set; }
+    public bool MegnyomtaE { get; set; } = false;
 
     private void SortByColumn()
     {
@@ -235,13 +241,16 @@ else
     private async Task ModositasokKuldese()
     {
         modositoMunka.MunkaAllapota = "Felvett munka";
+        modositoMunka.Id = ModositandoMunka;
         await HttpClient.PutAsJsonAsync($"http://localhost:5248/Database/{ModositandoMunka.ToString()}", modositoMunka);
         modositasVan = false;
         modositoMunka = new Munka();
         ModositandoMunka = -1;
+        await LoadData();
     }
     private void SearchColumn()
     {
+        MegnyomtaE = true;
         if (Munkak != null && !string.IsNullOrEmpty(searchText))
         {
             Munkak = Munkak.Where(munka => munka?.GetType().GetProperty(searchColumn)?.GetValue(munka)?.ToString() == searchText).ToList();
