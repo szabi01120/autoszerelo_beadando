@@ -40,7 +40,7 @@ namespace autoszerelo_szerver.Tests
 			var result = Esztimacio.MunkaEsztimacio(munka);
 
 			// Assert
-			Assert.AreEqual(6,4, result);
+			Assert.AreEqual(6.4, result);
 		}
 
 		[TestMethod]
@@ -94,7 +94,7 @@ namespace autoszerelo_szerver.Tests
 			var result = Esztimacio.MunkaEsztimacio(munka);
 
 			// Assert
-			Assert.AreEqual(1,2, result);
+			Assert.AreEqual(1.2, result);
 		}
 	}
 }
